@@ -39,6 +39,21 @@ The database will automatically get seeded (see main.py) with:
 - List 1: 'My List' with 50k companies
 - List 2: 'Liked Companies' with 10 companies
 
+## Modifying the dependencies during development
+
+The development container is configured such that you can modify
+the Python code of this API and see real-time results, but there
+is an important exception: dependencies. Since Docker loads volumes
+at runtime, not at build time, we always `COPY` the `pyproject.toml`
+file at build time. The entrypoint does not currently install
+dependencies at runtime, so the dependencies will always be static --
+to when you last built the container -- unless you explicitly
+reinitiate a build process.
+
+See [Reset Docker Container](#reset-docker-container) below for instructions
+on how to achieve this.
+
+
 # Reset Docker Container
 
 1. Run `docker compose down`
