@@ -37,7 +37,6 @@ class CompanyCollectionAssociationInput(BaseModel):
 
 class CompanyCollectionAssociationOutput(BaseModel):
     task_id: uuid.UUID
-    # task_status: str
 
 
 @router.get("", response_model=list[CompanyCollectionMetadata])
@@ -101,16 +100,20 @@ def add_company_associations_to_collection(
             detail="You must list at least one company to add to the collection.",
         )
     else:
-        task = create_bulk_collection_insertion(collection_id=collection_id, company_ids=company_associations.company_ids)
+        task = create_bulk_collection_insertion(
+            collection_id=collection_id, company_ids=company_associations.company_ids
+        )
         priority = 0 if len(company_associations.company_ids) < 5 else 1
         res = task.apply_async(priority=priority)
-        
+
         return CompanyCollectionAssociationOutput(
             task_id=res.id,
         )
 
 
-@router.delete("/{collection_id}/companies/{company_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{collection_id}/companies/{company_id}", status_code=status.HTTP_204_NO_CONTENT
+)
 def remove_company_from_collection(
     collection_id: uuid.UUID,
     company_id: int,
@@ -135,4 +138,7 @@ def remove_company_from_collection(
     except SQLAlchemyError as e:
         db.rollback()
         logging.error("Exception in remove_company_from_collection.", exc_info=e)
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Unknown error -- we're working on it.")
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "Unknown error -- we're working on it.",
+        )
