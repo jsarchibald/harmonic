@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  celery-worker:
+    build: .
+    volumes:
+      - .:/app
+    command: ["celery", "-A", "backend.worker.celery", "worker", "--loglevel=info"]
+    depends_on:
+      - postgres-jam-db
+      - rabbitmq-jam
+    environment:
+      CELERY_BROKER_URL: amqp://rabbitmq:rabbitmq@rabbitmq-jam//
+      DATABASE_URL: postgresql://postgres:postgres@postgres-jam-db:5432/harmonicjam
+
   postgres-jam-db:
     image: postgres:15.0
     environment:

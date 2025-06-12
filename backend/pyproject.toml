@@ -16,11 +16,11 @@ psycopg2-binary = "^2.9.9"
 pydantic = "^2.8.2"
 debugpy = "^1.8.2"
 randomname = "^0.2.1"
+celery = "^5.5.3"
 
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.5.5"
-celery = "^5.5.3"
 
 [build-system]
 requires = ["poetry-core"]
