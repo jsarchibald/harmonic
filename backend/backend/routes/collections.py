@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends, Query, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from psycopg2.errors import UniqueViolation, ForeignKeyViolation
+from sqlalchemy.exc import SQLAlchemyError
+from celery.result import GroupResult
 
 from backend.db import database
-from backend.worker import create_bulk_collection_insertion
+from backend.worker import create_bulk_collection_insertion, celery
 from backend.routes.companies import (
     CompanyBatchOutput,
     fetch_companies_with_liked,
@@ -35,8 +35,14 @@ class CompanyCollectionAssociationInput(BaseModel):
     company_ids: list[int]
 
 
-class CompanyCollectionAssociationOutput(BaseModel):
+class BulkCompanyCollectionAssociationEnqueueOutput(BaseModel):
     task_id: uuid.UUID
+
+
+class BulkCompanyCollectionAssociationStatusOutput(
+    BulkCompanyCollectionAssociationEnqueueOutput
+):
+    status: str
 
 
 @router.get("", response_model=list[CompanyCollectionMetadata])
@@ -89,7 +95,7 @@ def add_company_associations_to_collection(
     collection_id: uuid.UUID,
     company_associations: CompanyCollectionAssociationInput,
     db: Session = Depends(database.get_db),
-) -> CompanyCollectionAssociationOutput:
+) -> BulkCompanyCollectionAssociationEnqueueOutput:
     """Add a company to a collection."""
 
     # TODO: should there be different behavior for small changes? (probably yes)
@@ -104,9 +110,9 @@ def add_company_associations_to_collection(
             collection_id=collection_id, company_ids=company_associations.company_ids
         )
         priority = 0 if len(company_associations.company_ids) < 5 else 1
-        res = task.apply_async(priority=priority)
+        res = task.apply_async(priority=priority).save()
 
-        return CompanyCollectionAssociationOutput(
+        return BulkCompanyCollectionAssociationEnqueueOutput(
             task_id=res.id,
         )
 
@@ -142,3 +148,21 @@ def remove_company_from_collection(
             status.HTTP_500_INTERNAL_SERVER_ERROR,
             "Unknown error -- we're working on it.",
         )
+
+
+@router.get("/bulk_operation/{task_id}")
+def get_bulk_operation_status(
+    task_id: str,
+) -> BulkCompanyCollectionAssociationStatusOutput:
+    """Get the current status of a bulk operation."""
+    task_result = GroupResult.restore(task_id, app=celery)
+    return BulkCompanyCollectionAssociationStatusOutput(
+        task_id=task_id,
+        status=(
+            "SUCCESS"
+            if task_result.successful()
+            else "FAILURE"
+            if task_result.failed()
+            else "PENDING"
+        ),
+    )
