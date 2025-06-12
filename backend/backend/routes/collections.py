@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from psycopg2.errors import UniqueViolation, ForeignKeyViolation
 
 from backend.db import database
+from backend.worker import create_bulk_collection_insertion
 from backend.routes.companies import (
     CompanyBatchOutput,
     fetch_companies_with_liked,
@@ -35,8 +36,7 @@ class CompanyCollectionAssociationInput(BaseModel):
 
 
 class CompanyCollectionAssociationOutput(BaseModel):
-    collection_id: uuid.UUID
-    company_id: int
+    task_id: uuid.UUID
 
 
 @router.get("", response_model=list[CompanyCollectionMetadata])
@@ -92,38 +92,28 @@ def add_company_associations_to_collection(
 ) -> CompanyCollectionAssociationOutput:
     """Add a company to a collection."""
 
+    # TODO: should there be different behavior for small changes? (probably yes)
+
     if len(company_associations.company_ids) < 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You must list at least one company to add to the collection.",
         )
-    elif len(company_associations.company_ids) == 1:
-        association = database.CompanyCollectionAssociation(
-            company_id=company_associations.company_ids[0],
-            collection_id=collection_id,
-        )
-        try:
-            db.add(association)
-            db.commit()
-        except IntegrityError as e:
-            if isinstance(e.orig, UniqueViolation):
-                raise HTTPException(
-                    status.HTTP_400_BAD_REQUEST, detail="This company is already in the collection."
-                )
-            elif isinstance(e.orig, ForeignKeyViolation):
-                raise HTTPException(
-                    status.HTTP_400_BAD_REQUEST, detail="Either the company or the collection does not exist."
-                )
-            else:
-                raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An unknown error occurred.")
-        return CompanyCollectionAssociationOutput(
-            company_id=company_associations.company_ids[0], collection_id=collection_id
-        )
     else:
-        raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="In progress!")
+        task = create_bulk_collection_insertion(
+            collection_id=collection_id, company_ids=company_associations.company_ids
+        )
+        priority = 0 if len(company_associations.company_ids) < 5 else 1
+        res = task.apply_async(priority=priority)
+
+        return CompanyCollectionAssociationOutput(
+            task_id=res.id,
+        )
 
 
-@router.delete("/{collection_id}/companies/{company_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    "/{collection_id}/companies/{company_id}", status_code=status.HTTP_204_NO_CONTENT
+)
 def remove_company_from_collection(
     collection_id: uuid.UUID,
     company_id: int,
@@ -148,4 +138,7 @@ def remove_company_from_collection(
     except SQLAlchemyError as e:
         db.rollback()
         logging.error("Exception in remove_company_from_collection.", exc_info=e)
-        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Unknown error -- we're working on it.")
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            "Unknown error -- we're working on it.",
+        )
