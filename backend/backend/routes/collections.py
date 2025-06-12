@@ -146,5 +146,6 @@ def remove_company_from_collection(
         db.delete(association)
         db.commit()
     except SQLAlchemyError as e:
+        db.rollback()
         logging.error("Exception in remove_company_from_collection.", exc_info=e)
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Unknown error -- we're working on it.")
