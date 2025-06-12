@@ -43,6 +43,7 @@ function App() {
               {collectionResponse?.map((collection) => {
                 return (
                   <div
+                    key={`collection_list_${collection.id}`}
                     className={`py-1 pl-4 hover:cursor-pointer hover:bg-orange-300 ${
                       selectedCollectionId === collection.id &&
                       "bg-orange-500 font-bold"
@@ -59,7 +60,10 @@ function App() {
           </div>
           <div className="w-4/5 ml-4">
             {selectedCollectionId && (
-              <CompanyTable selectedCollectionId={selectedCollectionId} />
+              <CompanyTable
+                selectedCollectionId={selectedCollectionId}
+                allCollections={collectionResponse}
+              />
             )}
           </div>
         </div>
