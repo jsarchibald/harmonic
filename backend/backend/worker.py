@@ -21,31 +21,33 @@ def add_companies_to_collection(
     """Adds a chunk of companies to a collection and updates the progress in DB."""
 
     with database.SessionLocal() as db:
-        # association = database.CompanyCollectionAssociation(
-        #     company_id=company_associations.company_ids[0],
-        #     collection_id=collection_id,
-        # )
         try:
             query = insert(database.CompanyCollectionAssociation.__table__).values([
                 {"collection_id": collection_id, "company_id": company_id} for company_id in company_ids
             ]).on_conflict_do_nothing()
-            # db.bulk_insert_mappings(database.CompanyCollectionAssociation, )
-            # db.add(association)
             db.execute(query)
             db.commit()
-            print("DONE!!")
         except IntegrityError as e:
-            raise
-            # if isinstance(e.orig, UniqueViolation):
-            #     raise HTTPException(
-            #         status.HTTP_400_BAD_REQUEST, detail="This company is already in the collection."
-            #     )
-            # elif isinstance(e.orig, ForeignKeyViolation):
-            #     raise HTTPException(
-            #         status.HTTP_400_BAD_REQUEST, detail="Either the company or the collection does not exist."
-            #     )
-            # else:
-            #     raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An unknown error occurred.")
+            db.rollback()
+            if isinstance(e.orig, ForeignKeyViolation):
+                # Retry individually -- slower than a bulk insert, but we will insert every company that does exist
+                nonexistent_company_ids = set()
+                for company_id in company_ids:
+                    try:
+                        association = database.CompanyCollectionAssociation(collection_id=collection_id, company_id=company_id)
+                        db.add(association)
+                        db.flush()
+                    except IntegrityError as e:
+                        if isinstance(e.orig, ForeignKeyViolation):
+                            db.rollback()
+                            nonexistent_company_ids.add(company_id)
+                        else:
+                            pass
+
+                # TODO: notify the user of a partial failure
+                db.commit()
+            else:
+                raise
 
 
 @celery.task(name="create_bulk_collection_insertion")
