@@ -1,9 +1,11 @@
 import uuid
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
+from psycopg2.errors import UniqueViolation, ForeignKeyViolation
 
 from backend.db import database
 from backend.routes.companies import (
@@ -24,6 +26,15 @@ class CompanyCollectionMetadata(BaseModel):
 
 class CompanyCollectionOutput(CompanyBatchOutput, CompanyCollectionMetadata):
     pass
+
+
+class CompanyCollectionAssociationInput(BaseModel):
+    company_ids: list[int]
+
+
+class CompanyCollectionAssociationOutput(BaseModel):
+    collection_id: uuid.UUID
+    company_id: int
 
 
 @router.get("", response_model=list[CompanyCollectionMetadata])
@@ -69,3 +80,33 @@ def get_company_collection_by_id(
         companies=companies,
         total=total_count,
     )
+
+@router.post("/{collection_id}/companies/")
+def add_company_associations_to_collection(
+    collection_id: uuid.UUID,
+    company_associations: CompanyCollectionAssociationInput,
+    db: Session = Depends(database.get_db),
+) -> CompanyCollectionAssociationOutput:
+    """Add a company to a collection.
+    """
+
+    if len(company_associations.company_ids) < 1:
+        raise HTTPException(status_code=400, detail="You must list at least one company to add to the collection.")
+    elif len(company_associations.company_ids) == 1:
+        association = database.CompanyCollectionAssociation(
+            company_id=company_associations.company_ids[0],
+            collection_id=collection_id,
+        )
+        try:
+            db.add(association)
+            db.commit()
+        except IntegrityError as e:
+            if isinstance(e.orig, UniqueViolation):
+                raise HTTPException(400, detail="This company is already in the collection.")
+            elif isinstance(e.orig, ForeignKeyViolation):
+                raise HTTPException(400, detail="Either the company or the collection does not exist.")
+            else:
+                raise HTTPException(400, detail="An unknown error occurred.")
+        return CompanyCollectionAssociationOutput(company_id=company_associations.company_ids[0], collection_id=collection_id)
+    else:
+        raise HTTPException(status_code=404, detail="In progress!")
