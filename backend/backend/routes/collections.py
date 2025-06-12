@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from psycopg2.errors import UniqueViolation, ForeignKeyViolation
 
 from backend.db import database
@@ -12,6 +12,8 @@ from backend.routes.companies import (
     CompanyBatchOutput,
     fetch_companies_with_liked,
 )
+
+import logging
 
 router = APIRouter(
     prefix="/collections",
@@ -119,3 +121,30 @@ def add_company_associations_to_collection(
         )
     else:
         raise HTTPException(status_code=404, detail="In progress!")
+
+
+@router.delete("/{collection_id}/companies/{company_id}", status_code=204)
+def remove_company_from_collection(
+    collection_id: uuid.UUID,
+    company_id: int,
+    db: Session = Depends(database.get_db),
+):
+    """Remove a company from a collection."""
+    association = (
+        db.query(database.CompanyCollectionAssociation)
+        .filter(
+            database.CompanyCollectionAssociation.collection_id == collection_id,
+            database.CompanyCollectionAssociation.company_id == company_id,
+        )
+        .first()
+    )
+
+    if association is None:
+        raise HTTPException(404, "Company not in colelction.")
+
+    try:
+        db.delete(association)
+        db.commit()
+    except SQLAlchemyError as e:
+        logging.error("Exception in remove_company_from_collection.", exc_info=e)
+        raise HTTPException(500, "Unknown error -- we're working on it.")
