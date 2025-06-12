@@ -1,10 +1,10 @@
 import uuid
 
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from psycopg2.errors import UniqueViolation, ForeignKeyViolation
 
 from backend.db import database
@@ -12,6 +12,8 @@ from backend.routes.companies import (
     CompanyBatchOutput,
     fetch_companies_with_liked,
 )
+
+import logging
 
 router = APIRouter(
     prefix="/collections",
@@ -92,7 +94,7 @@ def add_company_associations_to_collection(
 
     if len(company_associations.company_ids) < 1:
         raise HTTPException(
-            status_code=400,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="You must list at least one company to add to the collection.",
         )
     elif len(company_associations.company_ids) == 1:
@@ -106,16 +108,44 @@ def add_company_associations_to_collection(
         except IntegrityError as e:
             if isinstance(e.orig, UniqueViolation):
                 raise HTTPException(
-                    400, detail="This company is already in the collection."
+                    status.HTTP_400_BAD_REQUEST, detail="This company is already in the collection."
                 )
             elif isinstance(e.orig, ForeignKeyViolation):
                 raise HTTPException(
-                    400, detail="Either the company or the collection does not exist."
+                    status.HTTP_400_BAD_REQUEST, detail="Either the company or the collection does not exist."
                 )
             else:
-                raise HTTPException(400, detail="An unknown error occurred.")
+                raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An unknown error occurred.")
         return CompanyCollectionAssociationOutput(
             company_id=company_associations.company_ids[0], collection_id=collection_id
         )
     else:
-        raise HTTPException(status_code=404, detail="In progress!")
+        raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="In progress!")
+
+
+@router.delete("/{collection_id}/companies/{company_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_company_from_collection(
+    collection_id: uuid.UUID,
+    company_id: int,
+    db: Session = Depends(database.get_db),
+):
+    """Remove a company from a collection."""
+    association = (
+        db.query(database.CompanyCollectionAssociation)
+        .filter(
+            database.CompanyCollectionAssociation.collection_id == collection_id,
+            database.CompanyCollectionAssociation.company_id == company_id,
+        )
+        .first()
+    )
+
+    if association is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Company not in colelction.")
+
+    try:
+        db.delete(association)
+        db.commit()
+    except SQLAlchemyError as e:
+        db.rollback()
+        logging.error("Exception in remove_company_from_collection.", exc_info=e)
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "Unknown error -- we're working on it.")
