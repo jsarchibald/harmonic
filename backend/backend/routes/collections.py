@@ -6,10 +6,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from backend.db import database
-from backend.routes.companies import (
-    CompanyBatchOutput,
-    fetch_companies_with_liked,
-)
+from backend.routes.companies import CompanyBatchOutput, fetch_companies_with_liked
 
 router = APIRouter(
     prefix="/collections",
