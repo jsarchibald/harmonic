@@ -1,14 +1,18 @@
-import { DataGrid, GridRowId } from "@mui/x-data-grid";
+import { DataGrid, GridRowId, useGridApiRef } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { getCollectionsById, ICollection, ICompany } from "../utils/jam-api";
 import CompanyTableToolbar from "./CompanyTableToolbar/CompanyTableToolbar";
 import BulkActionSnackbar from "./BulkActionSnackbar";
-import { TableSelectionContext, tableSelectionContext } from "../utils/contexts";
+import {
+  TableSelectionContext,
+  tableSelectionContext,
+} from "../utils/contexts";
 
 const CompanyTable = (props: {
   selectedCollectionId: string;
   allCollections?: ICollection[];
 }) => {
+  const apiRef = useGridApiRef();
   const [response, setResponse] = useState<ICompany[]>([]);
   const [total, setTotal] = useState<number>();
   const [offset, setOffset] = useState<number>(0);
@@ -33,18 +37,30 @@ const CompanyTable = (props: {
   const [selectionModel, setSelectionModel] = useState<readonly GridRowId[]>(
     [],
   );
+  // apiRef.current.subscribeEvent(
+  //   'headerSelectionCheckboxChange',
+  //   () => {alert("Hi")},
+  // );
 
   return (
     total != undefined && (
       <TableSelectionContext.Provider
         value={{
-           snackbarOpen, setSnackbarOpen, snackbarMessage,
-           setSnackbarMessage, total, pageSize, selectionModel,
-           selectAllAcrossPages, setSelectAllAcrossPages,
+          snackbarOpen,
+          setSnackbarOpen,
+          snackbarMessage,
+          setSnackbarMessage,
+          total,
+          pageSize,
+          selectionModel,
+          setSelectionModel,
+          selectAllAcrossPages,
+          setSelectAllAcrossPages,
         }}
       >
         <div style={{ height: 600, width: "100%" }}>
           <DataGrid
+            apiRef={apiRef}
             rows={response}
             rowHeight={30}
             columns={[
@@ -60,6 +76,7 @@ const CompanyTable = (props: {
             rowCount={total}
             pagination
             checkboxSelection
+            keepNonExistentRowsSelected
             paginationMode="server"
             onPaginationModelChange={(newMeta) => {
               setPageSize(newMeta.pageSize);

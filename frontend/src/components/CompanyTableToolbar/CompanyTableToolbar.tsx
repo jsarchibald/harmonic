@@ -1,8 +1,6 @@
-import { GridRowId, GridToolbarContainer } from "@mui/x-data-grid";
+import { GridRowId, GridToolbarContainer, useGridApiContext, useGridApiEventHandler } from "@mui/x-data-grid";
 import { useContext, useState } from "react";
-import {
-  ICollection,
-} from "../../utils/jam-api";
+import { ICollection } from "../../utils/jam-api";
 import {
   Alert,
   Box,
@@ -25,6 +23,17 @@ const CompanyTableToolbar = ({
 }) => {
   const tableSelectionContext = useContext(TableSelectionContext);
 
+  // When the Select All button is clicked, ensure that the selection is truly
+  // empty -- this handles the case where we manipulated this manually 
+  // TODO: custom footer
+  const apiRef = useGridApiContext();
+  useGridApiEventHandler(apiRef, 'headerSelectionCheckboxChange', (event)=>{
+    if (!event.value) {
+      tableSelectionContext?.setSelectAllAcrossPages(false);
+      tableSelectionContext?.setSelectionModel([]);
+    }
+  });
+
   return (
     <GridToolbarContainer>
       <Stack
@@ -39,10 +48,11 @@ const CompanyTableToolbar = ({
           total={tableSelectionContext?.total}
           collectionsList={collectionsList}
         />
-        {
-        ((tableSelectionContext?.selectionModel.length == tableSelectionContext?.pageSize )|| tableSelectionContext?.selectAllAcrossPages)
-        && <SelectAllAcrossPagesAlert />
-        }
+        {(tableSelectionContext?.selectionModel.length ==
+          tableSelectionContext?.pageSize ||
+          tableSelectionContext?.selectAllAcrossPages) && (
+          <SelectAllAcrossPagesAlert />
+        )}
       </Stack>
     </GridToolbarContainer>
   );

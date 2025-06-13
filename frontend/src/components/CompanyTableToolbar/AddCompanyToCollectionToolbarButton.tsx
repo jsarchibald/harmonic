@@ -5,12 +5,7 @@ import {
   checkBulkCompanyAdd,
   ICollection,
 } from "../../utils/jam-api";
-import {
-  Box,
-  Button,
-  Menu,
-  MenuItem,
-} from "@mui/material";
+import { Box, Button, Menu, MenuItem } from "@mui/material";
 import { TableSelectionContext } from "../../utils/contexts";
 
 const AddCompanyToCollectionToolbarButton = ({
@@ -70,34 +65,32 @@ const AddCompanyToCollectionToolbarButton = ({
 
   return (
     <Box alignItems={"flex-start"} textAlign={"left"}>
-        <Button onClick={handleClick} disabled={selectionModel.length < 1}>
-          Add to collection
-        </Button>
-        <Menu
-          id="basic-menu"
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleClose}
-          slotProps={{
-            list: {
-              "aria-labelledby": "basic-button",
-            },
-          }}
-        >
-          {collectionsList.map((collection) => (
-            <MenuItem
-              key={`bulk_add_collection_menu_${collection.id}`}
-              onClick={() => {
-                triggerBulkAdd(collection, selectionModel);
-              }}
-            >
-              {collection.collection_name}
-            </MenuItem>
-          ))}
-        </Menu>
-      </Box>
-      
-
+      <Button onClick={handleClick} disabled={selectionModel.length < 1}>
+        Add to collection
+      </Button>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        slotProps={{
+          list: {
+            "aria-labelledby": "basic-button",
+          },
+        }}
+      >
+        {collectionsList.map((collection) => (
+          <MenuItem
+            key={`bulk_add_collection_menu_${collection.id}`}
+            onClick={() => {
+              triggerBulkAdd(collection, selectionModel);
+            }}
+          >
+            {collection.collection_name}
+          </MenuItem>
+        ))}
+      </Menu>
+    </Box>
   );
 };
 
