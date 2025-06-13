@@ -40,22 +40,18 @@ const AddCompanyToCollectionToolbarButton = ({
             response.task_count) *
             100,
         );
-        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarProgress: progress});
+        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, progress: progress});
 
+        // If it succeeds or fails, alert the user
         if (response.status == "SUCCESS") {
-          companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarOpen: true});
           let message = `Finished adding ${companies_queued_count} compan${companies_queued_count == 1 ? "y" : "ies"} to ${destination_collection.collection_name}.`;
-          companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarMessage: message});
-          companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarProgress: 100});
-
+          companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, message: message, progress: 100, open: true, autoHideDuration: 5000});
           clearInterval(monitorLoop);
-
-          // An alternative to this is to set another state value that gets
-          // passed to the snackbar, but the state is already getting a bit heavy.
-          let closeSnackbar = setTimeout(() => {
-            companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarOpen: false});;
-          }, 5000);
-          clearTimeout(closeSnackbar);
+        }
+        else if (response.status == "FAILURE") {
+          let message = `Failed to add companies to ${destination_collection.collection_name}.`;
+          companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, message: message, showProgress: false, open: true, autoHideDuration: 5000});
+          clearInterval(monitorLoop)
         }
       });
     }, 10000);
@@ -78,14 +74,11 @@ const AddCompanyToCollectionToolbarButton = ({
     )
       .then((response) => {
         const companies_queued_count = response.companies_queued_count;
-        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarOpen: true});;
-
         let message = `Adding ${NumberFormat.format(companies_queued_count)} compan${companies_queued_count == 1 ? "y" : "ies"} to ${destination_collection.collection_name}.`;
         if (response.companies_queued_count > 10)
           message += " This might take a few minutes.";
 
-        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarMessage: message});
-        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarProgress: 0});
+        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, message: message, open: true, progress: 0, showProgress: true});
 
         monitorBulkAdd(
           response.task_id,
@@ -94,8 +87,8 @@ const AddCompanyToCollectionToolbarButton = ({
         );
       })
       .catch((error) => {
-        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarOpen: true});;
-        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarMessage: error.response.data.detail});
+        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, open: true});;
+        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, message: error.response.data.detail});
       });
   };
 

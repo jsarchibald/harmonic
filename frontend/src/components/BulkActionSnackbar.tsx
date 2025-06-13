@@ -18,20 +18,20 @@ export default function BulkActionSnackbar() {
       return;
     }
 
-    companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarOpen: false});;
+    companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, open: false});;
   };
 
-  // If snackbarContext?.snackbarProgress < 0, then it is disabled.
+  // If snackbarContext?.progress < 0, then it is disabled.
   // This avoids the need to maintain yet another state.
   const message = (
     <Stack direction={"row"} spacing={2} alignItems={"center"}>
-      {companyTableContext.snackbarState.snackbarShowProgress && (
+      {companyTableContext.snackbarState.showProgress && (
         <CircularProgressWithLabel
           variant="determinate"
-          value={companyTableContext.snackbarState.snackbarProgress}
+          value={companyTableContext.snackbarState.progress}
         />
       )}
-      <Box>{companyTableContext.snackbarState.snackbarMessage}</Box>
+      <Box>{companyTableContext.snackbarState.message}</Box>
     </Stack>
   );
 
@@ -50,9 +50,10 @@ export default function BulkActionSnackbar() {
 
   return (
     <Snackbar
-      open={companyTableContext.snackbarState.snackbarOpen}
+      open={companyTableContext.snackbarState.open}
       onClose={handleClose}
       message={message}
+      // autoHideDuration={companyTableContext.snackbarState.autoHideDuration}
       action={action}
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
     ></Snackbar>

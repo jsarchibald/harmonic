@@ -3,11 +3,12 @@ import { createContext, Dispatch, SetStateAction } from "react";
 
 /* The state of the Bulk Action snackbar */
 export interface IBulkActionSnackbarState {
-  snackbarOpen: boolean;
-  snackbarMessage: string;
-  snackbarShowProgress: boolean;
-  snackbarProgress: number;
-  snackbarAdditionalAction?: Node;
+  open: boolean;
+  message: string;
+  showProgress: boolean;
+  progress: number;
+  additionalAction?: Node;
+  autoHideDuration: number | null;
 }
 
 /* The context containing the high-level state of the CompanyTable. */

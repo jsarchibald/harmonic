@@ -16,11 +16,12 @@ const CompanyTable = (props: {
   const [offset, setOffset] = useState<number>(0);
   const [pageSize, setPageSize] = useState(25);
   const [snackbarState, setSnackbarState] = useState<IBulkActionSnackbarState>({
-    snackbarOpen: false,
-    snackbarMessage: '',
-    snackbarShowProgress: false,
-    snackbarProgress: -1,
-    snackbarAdditionalAction: undefined,
+    open: false,
+    message: '',
+    showProgress: false,
+    progress: -1,
+    additionalAction: undefined,
+    autoHideDuration: null,
   });
   const [selectAllAcrossPages, setSelectAllAcrossPages] = useState(false);
   const [selectionModel, setSelectionModel] = useState<readonly GridRowId[]>(
