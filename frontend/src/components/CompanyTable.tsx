@@ -73,6 +73,8 @@ const CompanyTable = (props: {
               toolbar: () => (
                 <CompanyTableToolbar
                   selectedIds={selectionModel}
+                  pageSize={pageSize}
+                  total={total}
                   collectionsList={
                     props.allCollections != undefined
                       ? props.allCollections

@@ -93,7 +93,7 @@ export async function addCompaniesToCollection(
 }
 
 export async function checkBulkCompanyAdd(
-    task_id: string,
+  task_id: string,
 ): Promise<IBulkOperationStatusResponse> {
   try {
     const response = await axios.get(
