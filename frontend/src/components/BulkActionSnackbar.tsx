@@ -17,7 +17,7 @@ export default function BulkActionSnackbar() {
       return;
     }
 
-    snackbarContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarOpen: false});;
+    snackbarContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarOpen: false});;
   };
 
   // If snackbarContext?.snackbarProgress < 0, then it is disabled.

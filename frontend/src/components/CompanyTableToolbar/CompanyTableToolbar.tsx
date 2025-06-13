@@ -15,13 +15,13 @@ const CompanyTableToolbar = ({
 }: {
   collectionsList: ICollection[];
 }) => {
-  const tableSelectionContext = useContext(TableSelectionContext);
+  const companyTableContext = useContext(TableSelectionContext);
 
   // When the Select All button is set to false, set the toggle for selection across all pages
   const apiRef = useGridApiContext();
   useGridApiEventHandler(apiRef, "headerSelectionCheckboxChange", (event) => {
     if (!event.value) {
-      tableSelectionContext.setSelectAllAcrossPages?.(false);
+      companyTableContext.setSelectAllAcrossPages?.(false);
     }
   });
 
@@ -35,14 +35,14 @@ const CompanyTableToolbar = ({
         sx={{ width: "100%" }}
       >
         <AddCompanyToCollectionToolbarButton
-          selectionModel={tableSelectionContext.selectionModel || []}
+          selectionModel={companyTableContext.selectionModel || []}
           collectionsList={collectionsList}
         />
-        {((tableSelectionContext.selectionModel?.length ==
-          tableSelectionContext?.pageSize &&
-          tableSelectionContext?.selectionModel.length <
-            tableSelectionContext?.total) ||
-          tableSelectionContext?.selectAllAcrossPages) && (
+        {((companyTableContext.selectionModel?.length ==
+          companyTableContext?.pageSize &&
+          companyTableContext?.selectionModel.length <
+            companyTableContext?.total) ||
+          companyTableContext?.selectAllAcrossPages) && (
           <SelectAllAcrossPagesAlert />
         )}
       </Stack>

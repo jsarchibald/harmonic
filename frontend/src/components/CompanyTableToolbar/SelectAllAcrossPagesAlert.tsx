@@ -4,25 +4,25 @@ import { useContext } from "react";
 import { TableSelectionContext } from "../../utils/contexts";
 
 const SelectAllAcrossPagesAlert = () => {
-  const tableSelectionContext = useContext(TableSelectionContext);
-  const total_formatted = NumberFormat.format(tableSelectionContext?.total);
+  const companyTableContext = useContext(TableSelectionContext);
+  const total_formatted = NumberFormat.format(companyTableContext?.total);
 
   let preface,
     action = "";
-  if (tableSelectionContext?.selectAllAcrossPages) {
+  if (companyTableContext?.selectAllAcrossPages) {
     preface = `All ${total_formatted} companies in the collection are selected.`;
     action = `Clear selection.`;
   } else {
-    preface = `All ${NumberFormat.format(tableSelectionContext?.pageSize)} companies on this page are selected.`;
+    preface = `All ${NumberFormat.format(companyTableContext?.pageSize)} companies on this page are selected.`;
     action = `Select all ${total_formatted} companies from all pages.`;
   }
 
   const toggleSelectAllAcrossPages = () => {
-    if (tableSelectionContext?.selectAllAcrossPages) {
-      tableSelectionContext.setSelectionModel?.([]);
+    if (companyTableContext?.selectAllAcrossPages) {
+      companyTableContext.setSelectionModel?.([]);
     }
-    tableSelectionContext.setSelectAllAcrossPages?.(
-      !tableSelectionContext?.selectAllAcrossPages,
+    companyTableContext.setSelectAllAcrossPages?.(
+      !companyTableContext?.selectAllAcrossPages,
     );
   };
 

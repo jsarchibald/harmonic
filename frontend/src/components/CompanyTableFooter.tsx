@@ -7,11 +7,11 @@ import { useContext } from "react";
 import { TableSelectionContext } from "../utils/contexts";
 
 const CompanyTableFooter = () => {
-  const tableSelectionContext = useContext(TableSelectionContext);
+  const companyTableContext = useContext(TableSelectionContext);
 
-  const selectedRowCount = tableSelectionContext?.selectAllAcrossPages
-    ? tableSelectionContext.total
-    : tableSelectionContext.selectionModel?.length || 0;
+  const selectedRowCount = companyTableContext?.selectAllAcrossPages
+    ? companyTableContext.total
+    : companyTableContext.selectionModel?.length || 0;
   return (
     <GridFooterContainer>
       <GridSelectedRowCount selectedRowCount={selectedRowCount} />

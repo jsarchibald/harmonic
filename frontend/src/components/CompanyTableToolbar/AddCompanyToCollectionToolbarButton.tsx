@@ -18,7 +18,7 @@ const AddCompanyToCollectionToolbarButton = ({
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const tableSelectionContext = useContext(TableSelectionContext);
+  const companyTableContext = useContext(TableSelectionContext);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -39,20 +39,20 @@ const AddCompanyToCollectionToolbarButton = ({
             response.task_count) *
             100,
         );
-        tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarProgress: progress});
+        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarProgress: progress});
 
         if (response.status == "SUCCESS") {
-          tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarOpen: true});
+          companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarOpen: true});
           let message = `Finished adding ${companies_queued_count} compan${companies_queued_count == 1 ? "y" : "ies"} to ${destination_collection.collection_name}.`;
-          tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarMessage: message});
-          tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarProgress: 100});
+          companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarMessage: message});
+          companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarProgress: 100});
 
           clearInterval(monitorLoop);
 
           // An alternative to this is to set another state value that gets
           // passed to the snackbar, but the state is already getting a bit heavy.
           let closeSnackbar = setTimeout(() => {
-            tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarOpen: false});;
+            companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarOpen: false});;
           }, 5000);
           clearTimeout(closeSnackbar);
         }
@@ -64,10 +64,10 @@ const AddCompanyToCollectionToolbarButton = ({
   const triggerBulkAdd = (destination_collection: ICollection) => {
     let company_ids: number[] = [];
     let source_collection_id = null;
-    if (tableSelectionContext?.selectAllAcrossPages) {
-      source_collection_id = tableSelectionContext?.selectedCollectionId;
+    if (companyTableContext?.selectAllAcrossPages) {
+      source_collection_id = companyTableContext?.selectedCollectionId;
     } else {
-      company_ids = tableSelectionContext.selectionModel?.map(Number) || [];
+      company_ids = companyTableContext.selectionModel?.map(Number) || [];
     }
 
     addCompaniesToCollection(
@@ -77,14 +77,14 @@ const AddCompanyToCollectionToolbarButton = ({
     )
       .then((response) => {
         const companies_queued_count = response.companies_queued_count;
-        tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarOpen: true});;
+        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarOpen: true});;
 
         let message = `Adding ${NumberFormat.format(companies_queued_count)} compan${companies_queued_count == 1 ? "y" : "ies"} to ${destination_collection.collection_name}.`;
         if (response.companies_queued_count > 10)
           message += " This might take a few minutes.";
 
-        tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarMessage: message});
-        tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarProgress: 0});
+        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarMessage: message});
+        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarProgress: 0});
 
         monitorBulkAdd(
           response.task_id,
@@ -93,8 +93,8 @@ const AddCompanyToCollectionToolbarButton = ({
         );
       })
       .catch((error) => {
-        tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarOpen: true});;
-        tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarMessage: error.response.data.detail});
+        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarOpen: true});;
+        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, snackbarMessage: error.response.data.detail});
       });
   };
 
@@ -112,7 +112,7 @@ const AddCompanyToCollectionToolbarButton = ({
         {collectionsList
           .filter(
             (collection) =>
-              collection.id != tableSelectionContext?.selectedCollectionId,
+              collection.id != companyTableContext?.selectedCollectionId,
           )
           .map((collection) => (
             <MenuItem
