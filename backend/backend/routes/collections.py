@@ -37,11 +37,11 @@ class CompanyCollectionAssociationInput(BaseModel):
 
 class BulkCompanyCollectionAssociationEnqueueOutput(BaseModel):
     task_id: uuid.UUID
+    companies_queued: int
 
 
-class BulkCompanyCollectionAssociationStatusOutput(
-    BulkCompanyCollectionAssociationEnqueueOutput
-):
+class BulkCompanyCollectionAssociationStatusOutput(BaseModel):
+    task_id: uuid.UUID
     status: str
 
 
@@ -90,30 +90,31 @@ def get_company_collection_by_id(
     )
 
 
-@router.post("/{collection_id}/companies/")
+@router.post("/{collection_id}/companies/", status_code=status.HTTP_202_ACCEPTED)
 def add_company_associations_to_collection(
     collection_id: uuid.UUID,
     company_associations: CompanyCollectionAssociationInput,
-    db: Session = Depends(database.get_db),
 ) -> BulkCompanyCollectionAssociationEnqueueOutput:
     """Add a company to a collection."""
 
     # TODO: should there be different behavior for small changes? (probably yes)
+    company_ids = company_associations.company_ids
 
-    if len(company_associations.company_ids) < 1:
+    if len(company_ids) < 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You must list at least one company to add to the collection.",
         )
     else:
         task = create_bulk_collection_insertion(
-            collection_id=collection_id, company_ids=company_associations.company_ids
+            collection_id=collection_id, company_ids=company_ids
         )
         priority = 0 if len(company_associations.company_ids) < 5 else 1
         res = task.apply_async(priority=priority).save()
 
         return BulkCompanyCollectionAssociationEnqueueOutput(
             task_id=res.id,
+            companies_queued=len(company_ids),
         )
 
 
@@ -157,7 +158,7 @@ def get_bulk_operation_status(
     """Get the current status of a bulk operation."""
     task_result = GroupResult.restore(task_id, app=celery)
     return BulkCompanyCollectionAssociationStatusOutput(
-        task_id=task_id,
+        task_id=uuid.UUID(task_id),
         status=(
             "SUCCESS"
             if task_result.successful()
