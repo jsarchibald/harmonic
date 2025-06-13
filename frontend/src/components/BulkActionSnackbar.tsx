@@ -22,9 +22,6 @@ export default function BulkActionSnackbar() {
 
   const action = (
     <>
-      {/* <Button color="secondary" size="small" onClick={handleClose}>
-        Monitor
-      </Button> */}
       <IconButton
         size="small"
         aria-label="close"

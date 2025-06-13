@@ -21,26 +21,6 @@ const SelectAllAcrossPagesAlert = () => {
   const toggleSelectAllAcrossPages = () => {
     if (tableSelectionContext?.selectAllAcrossPages) {
       tableSelectionContext?.setSelectionModel([]);
-    } else {
-      // Since we won't be using the row IDs explicitly in the
-      // select-all-across-pages case, we fill in the selection model
-      // with dummy rows. This is generally consistent with how
-      // MUI handles preserved state across pages via `keepNonExistentRowsSelected`:
-      // https://mui.com/x/react-data-grid/row-selection/#usage-with-server-side-pagination
-      // but it is a bit of a hack.
-      const maxId = Math.max(
-        ...tableSelectionContext?.selectionModel.map(Number),
-      );
-      const fakeIds = Array.from(
-        {
-          length:
-            tableSelectionContext?.total - tableSelectionContext?.pageSize,
-        },
-        (_, i) => i + maxId + 1,
-      );
-      tableSelectionContext?.setSelectionModel(
-        tableSelectionContext?.selectionModel.concat(fakeIds),
-      );
     }
     tableSelectionContext?.setSelectAllAcrossPages(
       !tableSelectionContext?.selectAllAcrossPages,

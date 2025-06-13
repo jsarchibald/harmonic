@@ -7,12 +7,12 @@ import {
   TableSelectionContext,
   tableSelectionContext,
 } from "../utils/contexts";
+import CompanyTableFooter from "./CompanyTableToolbar/CompanyTableFooter";
 
 const CompanyTable = (props: {
   selectedCollectionId: string;
   allCollections?: ICollection[];
 }) => {
-  const apiRef = useGridApiRef();
   const [response, setResponse] = useState<ICompany[]>([]);
   const [total, setTotal] = useState<number>();
   const [offset, setOffset] = useState<number>(0);
@@ -37,10 +37,6 @@ const CompanyTable = (props: {
   const [selectionModel, setSelectionModel] = useState<readonly GridRowId[]>(
     [],
   );
-  // apiRef.current.subscribeEvent(
-  //   'headerSelectionCheckboxChange',
-  //   () => {alert("Hi")},
-  // );
 
   return (
     total != undefined && (
@@ -60,7 +56,6 @@ const CompanyTable = (props: {
       >
         <div style={{ height: 600, width: "100%" }}>
           <DataGrid
-            apiRef={apiRef}
             rows={response}
             rowHeight={30}
             columns={[
@@ -96,6 +91,8 @@ const CompanyTable = (props: {
                   }
                 />
               ),
+
+              footer: () => <CompanyTableFooter />,
             }}
           />
           <BulkActionSnackbar />
