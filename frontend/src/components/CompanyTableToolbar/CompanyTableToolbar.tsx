@@ -42,6 +42,7 @@ const CompanyTableToolbar = ({
         divider={<Divider orientation="horizontal" flexItem />}
         alignItems={"stretch"}
         direction={"column"}
+        spacing={0.5}
         sx={{ width: "100%" }}
       >
         <AddCompanyToCollectionToolbarButton
