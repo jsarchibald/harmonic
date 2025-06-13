@@ -5,7 +5,6 @@ import { TableSelectionContext } from "../../utils/contexts";
 
 const SelectAllAcrossPagesAlert = () => {
   const tableSelectionContext = useContext(TableSelectionContext);
-  console.log(tableSelectionContext?.selectAllAcrossPages);
   const total_formatted = NumberFormat.format(tableSelectionContext?.total);
 
   let preface,

@@ -52,11 +52,16 @@ const AddCompanyToCollectionToolbarButton = ({
           message += " This might take a few minutes.";
 
         tableSelectionContext?.setSnackbarMessage(message);
-        tableSelectionContext?.setSelectionModel([]);
-        tableSelectionContext?.setSelectAllAcrossPages(false);
 
         let repeat = setInterval(() => {
           checkBulkCompanyAdd(response.task_id).then((response) => {
+            const progress = Math.floor((response.task_count - response.status_breakdown.PENDING) / response.task_count * 100);
+            console.log(progress)
+
+            tableSelectionContext?.setSnackbarProgress(progress);
+
+
+
             if (response.status == "SUCCESS") {
               tableSelectionContext?.setSnackbarOpen(true);
               let message = `Finished adding ${companies_queued} compan${companies_queued == 1 ? "y" : "ies"} to ${collection.collection_name}.`;
@@ -68,13 +73,10 @@ const AddCompanyToCollectionToolbarButton = ({
         }, 5000);
       })
       .catch((error) => {
-        console.log(error);
         tableSelectionContext?.setSnackbarOpen(true);
         tableSelectionContext?.setSnackbarMessage(error.response.data.detail);
       });
   };
-
-  console.log(pageSize, total, selectionModel.length);
 
   return (
     <Box alignItems={"flex-start"} textAlign={"left"}>

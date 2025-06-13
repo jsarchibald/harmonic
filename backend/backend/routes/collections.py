@@ -6,6 +6,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from celery.result import GroupResult
+from celery.states import ALL_STATES as ALL_KNOWN_CELERY_STATES
 from typing import Optional
 
 from backend.db import database
@@ -45,6 +46,9 @@ class BulkCompanyCollectionAssociationEnqueueOutput(BaseModel):
 class BulkCompanyCollectionAssociationStatusOutput(BaseModel):
     task_id: uuid.UUID
     status: str
+    # task_count: int
+    # TODO: Literal or enum, but those are more complicated due to the constant import
+    # status_breakdown: dict[str, int]
 
 
 @router.get("", response_model=list[CompanyCollectionMetadata])
@@ -173,8 +177,10 @@ def get_bulk_operation_status(
 ) -> BulkCompanyCollectionAssociationStatusOutput:
     """Get the current status of a bulk operation."""
     task_result = GroupResult.restore(task_id, app=celery)
+
     return BulkCompanyCollectionAssociationStatusOutput(
         task_id=uuid.UUID(task_id),
+        # task_count=len(t/ask_result.results),
         status=(
             "SUCCESS"
             if task_result.successful()

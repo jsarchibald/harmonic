@@ -52,7 +52,9 @@ const CompanyTableToolbar = ({
           collectionsList={collectionsList}
         />
         {((tableSelectionContext?.selectionModel.length ==
-          tableSelectionContext?.pageSize && tableSelectionContext?.selectionModel.length < tableSelectionContext?.total) ||
+          tableSelectionContext?.pageSize &&
+          tableSelectionContext?.selectionModel.length <
+            tableSelectionContext?.total) ||
           tableSelectionContext?.selectAllAcrossPages) && (
           <SelectAllAcrossPagesAlert />
         )}

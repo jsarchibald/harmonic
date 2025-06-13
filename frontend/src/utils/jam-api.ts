@@ -22,9 +22,21 @@ export interface IBulkOperationEnqueueResponse {
   companies_queued: number;
 }
 
+export interface IBulkOperationTaskStateCounts {
+  FAILURE: number;
+  PENDING: number;
+  RECEIVED: number;
+  RETRY: number;
+  REVOKED: number;
+  STARTED: number;
+  SUCCESS: number;
+}
+
 export interface IBulkOperationStatusResponse {
   task_id: string;
   status: string;
+  task_count: number;
+  status_breakdown: IBulkOperationTaskStateCounts;
 }
 
 const BASE_URL = "http://localhost:8000";

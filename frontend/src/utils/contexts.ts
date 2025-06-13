@@ -12,6 +12,8 @@ export interface ITableSelectionContext {
   setSnackbarOpen: Dispatch<SetStateAction<boolean>>;
   snackbarMessage: string;
   setSnackbarMessage: Dispatch<SetStateAction<string>>;
+  snackbarProgress: number;
+  setSnackbarProgress: Dispatch<SetStateAction<boolean>>;
 
   selectAllAcrossPages: boolean;
   setSelectAllAcrossPages: Dispatch<SetStateAction<boolean>>;

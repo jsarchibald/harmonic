@@ -3,6 +3,11 @@ import IconButton from "@mui/material/IconButton";
 import { TableSelectionContext } from "../utils/contexts";
 import { useContext } from "react";
 import { Close } from "@mui/icons-material";
+import {
+  CircularProgress,
+  LinearProgress,
+  SnackbarContent,
+} from "@mui/material";
 
 export default function BulkActionSnackbar() {
   const snackbarContext = useContext(TableSelectionContext);
@@ -20,6 +25,17 @@ export default function BulkActionSnackbar() {
     }
   };
 
+  // If snackbarContext?.snackbarProgress < 0, then it is disabled.
+  // This avoids the need to maintain yet another state.
+  const message = (
+    <>
+      {snackbarContext?.snackbarProgress >= 0 && (
+        <CircularProgress variant="determinate" value={snackbarContext?.snackbarProgress} />
+      )}
+      {snackbarContext?.snackbarMessage}
+    </>
+  );
+
   const action = (
     <>
       <IconButton
@@ -36,11 +52,16 @@ export default function BulkActionSnackbar() {
   return (
     <Snackbar
       open={snackbarContext?.snackbarOpen}
-      autoHideDuration={5000}
+      // autoHideDuration={5000}
       onClose={handleClose}
-      message={snackbarContext?.snackbarMessage}
+      message={message}
       action={action}
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-    />
+    >
+      {/* <CircularProgress
+          variant="determinate"
+          value={50}
+        /> */}
+    </Snackbar>
   );
 }

@@ -19,6 +19,7 @@ const CompanyTable = (props: {
   const [pageSize, setPageSize] = useState(25);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarProgress, setSnackbarProgress] = useState(-1);
   const [selectAllAcrossPages, setSelectAllAcrossPages] = useState(false);
   const [selectionModel, setSelectionModel] = useState<readonly GridRowId[]>(
     [],
@@ -49,6 +50,8 @@ const CompanyTable = (props: {
           setSnackbarOpen,
           snackbarMessage,
           setSnackbarMessage,
+          snackbarProgress,
+          setSnackbarProgress,
           total,
           pageSize,
           selectionModel,
