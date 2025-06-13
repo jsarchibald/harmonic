@@ -4,14 +4,14 @@ import {
   addCompaniesToCollection,
   checkBulkCompanyAdd,
   ICollection,
-} from "../utils/jam-api";
+} from "../../utils/jam-api";
 import {
   Box,
   Button,
   Menu,
   MenuItem,
 } from "@mui/material";
-import { SnackbarContext } from "../utils/contexts";
+import { SnackbarContext } from "../../utils/contexts";
 
 const CompanyToCollectionToolbarButton = ({
   selectedIds,

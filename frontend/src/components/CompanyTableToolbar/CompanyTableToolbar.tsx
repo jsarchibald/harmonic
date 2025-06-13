@@ -2,7 +2,7 @@ import { GridRowId, GridToolbarContainer } from "@mui/x-data-grid";
 import { useContext, useState } from "react";
 import {
   ICollection,
-} from "../utils/jam-api";
+} from "../../utils/jam-api";
 import {
   Alert,
   Box,
@@ -13,7 +13,7 @@ import {
   MenuItem,
   Stack,
 } from "@mui/material";
-import { NumberFormat } from "../utils/numbers";
+import { NumberFormat } from "../../utils/numbers";
 import CompanyToCollectionToolbarButton from "./CompanyToCollectionToolbarButton";
 
 const CompanyTableToolbar = ({

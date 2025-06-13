@@ -1,7 +1,7 @@
 import { DataGrid, GridRowId } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { getCollectionsById, ICollection, ICompany } from "../utils/jam-api";
-import CompanyTableToolbar from "./CompanyTableToolbar";
+import CompanyTableToolbar from "./CompanyTableToolbar/CompanyTableToolbar";
 import BulkActionSnackbar from "./BulkActionSnackbar";
 import { SnackbarContext } from "../utils/contexts";
 
