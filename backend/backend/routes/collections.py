@@ -34,18 +34,21 @@ class CompanyCollectionOutput(CompanyBatchOutput, CompanyCollectionMetadata):
 
 class CompanyCollectionAssociationInput(BaseModel):
     """The input expected in order to enqueue a bulk addition of companies to a collection."""
+
     company_ids: list[int] = []
     source_collection_id: Optional[uuid.UUID] = None
 
 
 class BulkCompanyCollectionAssociationEnqueueOutput(BaseModel):
     """The output from enqueueing a bulk addition of companies to a collection."""
+
     task_id: uuid.UUID
     companies_queued_count: int
 
 
 class BulkCompanyCollectionAssociationStatusOutput(BaseModel):
     """The output of a status check for an individual task in Celery."""
+
     task_id: uuid.UUID
     status: str
     task_count: int
@@ -105,8 +108,8 @@ def add_company_associations_to_collection(
     db: Session = Depends(database.get_db),
 ) -> BulkCompanyCollectionAssociationEnqueueOutput:
     """Add a company to a collection.
-        If you specify both company IDs and a source collection ID,
-        the union of all company IDs will be taken.
+    If you specify both company IDs and a source collection ID,
+    the union of all company IDs will be taken.
     """
 
     company_ids = set(company_associations.company_ids)
@@ -132,7 +135,7 @@ def add_company_associations_to_collection(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You must choose at least one company to add to the collection.",
         )
-    
+
     # Note that we convert company_ids back to a list since that is what is
     # expected by the Celery task, and since the ordering of elements matters therein
     task = create_bulk_collection_insertion(

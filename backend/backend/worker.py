@@ -72,7 +72,7 @@ def add_companies_to_collection(
                             raise
 
                 db.commit()
-            
+
             # In case of unknown errors, just raise them
             else:
                 raise
