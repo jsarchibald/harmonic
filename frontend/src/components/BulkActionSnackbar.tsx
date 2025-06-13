@@ -31,13 +31,14 @@ export default function BulkActionSnackbar() {
   // If snackbarContext?.snackbarProgress < 0, then it is disabled.
   // This avoids the need to maintain yet another state.
   const message = (
-    <Stack direction={"row"}  spacing={2} alignItems={"center"}>
+    <Stack direction={"row"} spacing={2} alignItems={"center"}>
       {snackbarContext?.snackbarProgress >= 0 && (
-        <CircularProgressWithLabel variant="determinate" value={snackbarContext?.snackbarProgress} size={"2rem"} />
+        <CircularProgressWithLabel
+          variant="determinate"
+          value={snackbarContext?.snackbarProgress}
+        />
       )}
-      <Box>
-      {snackbarContext?.snackbarMessage}
-      </Box>
+      <Box>{snackbarContext?.snackbarMessage}</Box>
     </Stack>
   );
 

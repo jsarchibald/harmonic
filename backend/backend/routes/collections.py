@@ -40,7 +40,7 @@ class CompanyCollectionAssociationInput(BaseModel):
 
 class BulkCompanyCollectionAssociationEnqueueOutput(BaseModel):
     task_id: uuid.UUID
-    companies_queued: int
+    companies_queued_count: int
 
 
 class BulkCompanyCollectionAssociationStatusOutput(BaseModel):
@@ -134,7 +134,7 @@ def add_company_associations_to_collection(
 
         return BulkCompanyCollectionAssociationEnqueueOutput(
             task_id=res.id,
-            companies_queued=len(company_ids),
+            companies_queued_count=len(company_ids),
         )
 
 

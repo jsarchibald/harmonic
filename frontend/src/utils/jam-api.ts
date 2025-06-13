@@ -19,7 +19,7 @@ export interface ICompanyBatchResponse {
 
 export interface IBulkOperationEnqueueResponse {
   task_id: string;
-  companies_queued: number;
+  companies_queued_count: number;
 }
 
 export interface IBulkOperationTaskStateCounts {
