@@ -41,6 +41,8 @@ const AddCompanyToCollectionToolbarButton = ({
         if (response.companies_queued > 10)
           message += " This might take a few minutes.";
         tableSelectionContext?.setSnackbarMessage(message);
+        tableSelectionContext?.setSelectionModel([]);
+        tableSelectionContext?.setSelectAllAcrossPages(false);
 
         let repeat = setInterval(() => {
           checkBulkCompanyAdd(response.task_id).then((response) => {

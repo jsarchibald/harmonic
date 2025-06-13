@@ -20,12 +20,19 @@ const CompanyTable = (props: {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [selectAllAcrossPages, setSelectAllAcrossPages] = useState(false);
+  const [selectionModel, setSelectionModel] = useState<readonly GridRowId[]>(
+    [],
+  );
 
   useEffect(() => {
     getCollectionsById(props.selectedCollectionId, offset, pageSize).then(
       (newResponse) => {
         setResponse(newResponse.companies);
         setTotal(newResponse.total);
+
+        // Clear selection when new data load (e.g. next page or different collection)
+        setSelectAllAcrossPages(false);
+        setSelectionModel([])
       },
     );
   }, [props.selectedCollectionId, offset, pageSize]);
@@ -33,10 +40,6 @@ const CompanyTable = (props: {
   useEffect(() => {
     setOffset(0);
   }, [props.selectedCollectionId]);
-
-  const [selectionModel, setSelectionModel] = useState<readonly GridRowId[]>(
-    [],
-  );
 
   return (
     total != undefined && (
