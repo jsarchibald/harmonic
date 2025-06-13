@@ -9,3 +9,9 @@ In this repo, you'll find 2 deployable services:
 Please refer to the individual READMEs in the respective repos to get started!
 
 Enjoy :D
+
+## Design notes
+Are located [here](https://docs.google.com/document/d/1kNcTIon2Qs_7244qLb2FOOa5mLgTUPgoGnJVCLc8xyc/edit?usp=sharing)!
+
+## Loom demo video
+Is located here (TODO)!
