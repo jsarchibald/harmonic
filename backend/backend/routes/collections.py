@@ -46,9 +46,9 @@ class BulkCompanyCollectionAssociationEnqueueOutput(BaseModel):
 class BulkCompanyCollectionAssociationStatusOutput(BaseModel):
     task_id: uuid.UUID
     status: str
-    # task_count: int
+    task_count: int
     # TODO: Literal or enum, but those are more complicated due to the constant import
-    # status_breakdown: dict[str, int]
+    status_breakdown: dict[str, int]
 
 
 @router.get("", response_model=list[CompanyCollectionMetadata])
@@ -178,9 +178,16 @@ def get_bulk_operation_status(
     """Get the current status of a bulk operation."""
     task_result = GroupResult.restore(task_id, app=celery)
 
+    status_breakdown = dict.fromkeys(ALL_KNOWN_CELERY_STATES, 0)
+    for task in task_result.results:
+        if task.state in ALL_KNOWN_CELERY_STATES:
+            status_breakdown[task.state] += 1
+        else:
+            logging.warning(f"Unknown task result state: {task.state}")
+
     return BulkCompanyCollectionAssociationStatusOutput(
         task_id=uuid.UUID(task_id),
-        # task_count=len(t/ask_result.results),
+        task_count=len(task_result.results),
         status=(
             "SUCCESS"
             if task_result.successful()
@@ -188,4 +195,5 @@ def get_bulk_operation_status(
             if task_result.failed()
             else "PENDING"
         ),
+        status_breakdown = status_breakdown,
     )
