@@ -14,4 +14,4 @@ Enjoy :D
 Are located [here](https://docs.google.com/document/d/1kNcTIon2Qs_7244qLb2FOOa5mLgTUPgoGnJVCLc8xyc/edit?usp=sharing)!
 
 ## Loom demo video
-Is located here (TODO)!
+Is located [here](https://www.loom.com/share/70001625859a4db0b1cd94f8711827d3?sid=ceda9f14-4551-44ea-a364-abcc10b31fb4)!
