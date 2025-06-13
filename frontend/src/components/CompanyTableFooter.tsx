@@ -4,14 +4,15 @@ import {
   GridSelectedRowCount,
 } from "@mui/x-data-grid";
 import { useContext } from "react";
-import { TableSelectionContext } from "../utils/contexts";
+import { CompanyTableContext } from "../utils/contexts";
 
+/* Custom footer for CompanyTable DataGrid, overriding the select count when all pages are selectd. */
 const CompanyTableFooter = () => {
-  const tableSelectionContext = useContext(TableSelectionContext);
+  const companyTableContext = useContext(CompanyTableContext);
 
-  const selectedRowCount = tableSelectionContext?.selectAllAcrossPages
-    ? tableSelectionContext.total
-    : tableSelectionContext.selectionModel?.length || 0;
+  const selectedRowCount = companyTableContext?.selectAllAcrossPages
+    ? companyTableContext.total
+    : companyTableContext.selectionModel?.length || 0;
   return (
     <GridFooterContainer>
       <GridSelectedRowCount selectedRowCount={selectedRowCount} />

@@ -3,9 +3,13 @@ import { useEffect, useState } from "react";
 import { getCollectionsById, ICollection, ICompany } from "../utils/jam-api";
 import CompanyTableToolbar from "./CompanyTableToolbar/CompanyTableToolbar";
 import BulkActionSnackbar from "./BulkActionSnackbar";
-import { TableSelectionContext } from "../utils/contexts";
+import {
+  IBulkActionSnackbarState,
+  CompanyTableContext,
+} from "../utils/contexts";
 import CompanyTableFooter from "./CompanyTableFooter";
 
+/* The main company table component. */
 const CompanyTable = (props: {
   selectedCollectionId: string;
   allCollections?: ICollection[];
@@ -14,9 +18,15 @@ const CompanyTable = (props: {
   const [total, setTotal] = useState<number>();
   const [offset, setOffset] = useState<number>(0);
   const [pageSize, setPageSize] = useState(25);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarProgress, setSnackbarProgress] = useState(-1);
+  const [forceReload, setForceReload] = useState(true);
+  const [snackbarState, setSnackbarState] = useState<IBulkActionSnackbarState>({
+    open: false,
+    message: "",
+    showProgress: false,
+    progress: -1,
+    additionalAction: null,
+    autoHideDuration: null,
+  });
   const [selectAllAcrossPages, setSelectAllAcrossPages] = useState(false);
   const [selectionModel, setSelectionModel] = useState<readonly GridRowId[]>(
     [],
@@ -33,7 +43,7 @@ const CompanyTable = (props: {
         setSelectionModel([]);
       },
     );
-  }, [props.selectedCollectionId, offset, pageSize]);
+  }, [props.selectedCollectionId, offset, pageSize, forceReload]);
 
   useEffect(() => {
     setOffset(0);
@@ -41,14 +51,10 @@ const CompanyTable = (props: {
 
   return (
     total != undefined && (
-      <TableSelectionContext.Provider
+      <CompanyTableContext.Provider
         value={{
-          snackbarOpen,
-          setSnackbarOpen,
-          snackbarMessage,
-          setSnackbarMessage,
-          snackbarProgress,
-          setSnackbarProgress,
+          snackbarState,
+          setSnackbarState,
           total,
           pageSize,
           selectionModel,
@@ -56,6 +62,8 @@ const CompanyTable = (props: {
           selectAllAcrossPages,
           setSelectAllAcrossPages,
           selectedCollectionId: props.selectedCollectionId,
+          forceReload,
+          setForceReload,
         }}
       >
         <div style={{ height: 600, width: "100%" }}>
@@ -105,7 +113,7 @@ const CompanyTable = (props: {
           />
           <BulkActionSnackbar />
         </div>
-      </TableSelectionContext.Provider>
+      </CompanyTableContext.Provider>
     )
   );
 };

@@ -7,21 +7,22 @@ import { useContext } from "react";
 import { ICollection } from "../../utils/jam-api";
 import { Divider, Stack } from "@mui/material";
 import AddCompanyToCollectionToolbarButton from "./AddCompanyToCollectionToolbarButton";
-import { TableSelectionContext } from "../../utils/contexts";
+import { CompanyTableContext } from "../../utils/contexts";
 import SelectAllAcrossPagesAlert from "./SelectAllAcrossPagesAlert";
 
+/* A custom toolbar for our Data Grid component (CompanyTable). */
 const CompanyTableToolbar = ({
   collectionsList,
 }: {
   collectionsList: ICollection[];
 }) => {
-  const tableSelectionContext = useContext(TableSelectionContext);
+  const companyTableContext = useContext(CompanyTableContext);
 
   // When the Select All button is set to false, set the toggle for selection across all pages
   const apiRef = useGridApiContext();
   useGridApiEventHandler(apiRef, "headerSelectionCheckboxChange", (event) => {
     if (!event.value) {
-      tableSelectionContext.setSelectAllAcrossPages?.(false);
+      companyTableContext.setSelectAllAcrossPages?.(false);
     }
   });
 
@@ -35,14 +36,14 @@ const CompanyTableToolbar = ({
         sx={{ width: "100%" }}
       >
         <AddCompanyToCollectionToolbarButton
-          selectionModel={tableSelectionContext.selectionModel || []}
+          selectionModel={companyTableContext.selectionModel || []}
           collectionsList={collectionsList}
         />
-        {((tableSelectionContext.selectionModel?.length ==
-          tableSelectionContext?.pageSize &&
-          tableSelectionContext?.selectionModel.length <
-            tableSelectionContext?.total) ||
-          tableSelectionContext?.selectAllAcrossPages) && (
+        {((companyTableContext.selectionModel?.length ==
+          companyTableContext?.pageSize &&
+          companyTableContext?.selectionModel.length <
+            companyTableContext?.total) ||
+          companyTableContext?.selectAllAcrossPages) && (
           <SelectAllAcrossPagesAlert />
         )}
       </Stack>
