@@ -74,7 +74,6 @@ const CompanyTable = (props: {
             rowCount={total}
             pagination
             checkboxSelection
-            keepNonExistentRowsSelected
             paginationMode="server"
             onPaginationModelChange={(newMeta) => {
               setPageSize(newMeta.pageSize);
