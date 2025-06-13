@@ -17,6 +17,16 @@ export interface ICompanyBatchResponse {
   companies: ICompany[];
 }
 
+export interface IBulkOperationEnqueueResponse {
+  task_id: string;
+  companies_queued: number;
+}
+
+export interface IBulkOperationStatusResponse {
+  task_id: string;
+  status: string;
+}
+
 const BASE_URL = "http://localhost:8000";
 
 export async function getCompanies(
@@ -62,6 +72,36 @@ export async function getCollectionsMetadata(): Promise<ICollection[]> {
     return response.data;
   } catch (error) {
     console.error("Error fetching companies:", error);
+    throw error;
+  }
+}
+
+export async function addCompaniesToCollection(
+  collecton_id: string,
+  company_ids: number[],
+): Promise<IBulkOperationEnqueueResponse> {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}/collections/${collecton_id}/companies`,
+      { company_ids: company_ids },
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error adding companies to collection:", error);
+    throw error;
+  }
+}
+
+export async function checkBulkCompanyAdd(
+    task_id: string,
+): Promise<IBulkOperationStatusResponse> {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/collections/bulk_operation/${task_id}`,
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error adding companies to collection:", error);
     throw error;
   }
 }
