@@ -1,9 +1,9 @@
+/* This was taken with some modifications from MUI: https://mui.com/material-ui/react-progress/#circular-with-label */
 import CircularProgress, {
   CircularProgressProps,
 } from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import { useEffect, useState } from "react";
 
 function CircularProgressWithLabel(
   props: CircularProgressProps & { value: number },

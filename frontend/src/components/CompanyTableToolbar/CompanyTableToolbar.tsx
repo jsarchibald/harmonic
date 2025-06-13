@@ -1,22 +1,11 @@
 import {
-  GridRowId,
   GridToolbarContainer,
   useGridApiContext,
   useGridApiEventHandler,
 } from "@mui/x-data-grid";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { ICollection } from "../../utils/jam-api";
-import {
-  Alert,
-  Box,
-  Button,
-  Divider,
-  Link,
-  Menu,
-  MenuItem,
-  Stack,
-} from "@mui/material";
-import { NumberFormat } from "../../utils/numbers";
+import { Divider, Stack } from "@mui/material";
 import AddCompanyToCollectionToolbarButton from "./AddCompanyToCollectionToolbarButton";
 import { TableSelectionContext } from "../../utils/contexts";
 import SelectAllAcrossPagesAlert from "./SelectAllAcrossPagesAlert";
@@ -32,7 +21,7 @@ const CompanyTableToolbar = ({
   const apiRef = useGridApiContext();
   useGridApiEventHandler(apiRef, "headerSelectionCheckboxChange", (event) => {
     if (!event.value) {
-      tableSelectionContext?.setSelectAllAcrossPages(false);
+      tableSelectionContext.setSelectAllAcrossPages?.(false);
     }
   });
 
@@ -46,12 +35,10 @@ const CompanyTableToolbar = ({
         sx={{ width: "100%" }}
       >
         <AddCompanyToCollectionToolbarButton
-          selectionModel={tableSelectionContext?.selectionModel}
-          pageSize={tableSelectionContext?.pageSize}
-          total={tableSelectionContext?.total}
+          selectionModel={tableSelectionContext.selectionModel || []}
           collectionsList={collectionsList}
         />
-        {((tableSelectionContext?.selectionModel.length ==
+        {((tableSelectionContext.selectionModel?.length ==
           tableSelectionContext?.pageSize &&
           tableSelectionContext?.selectionModel.length <
             tableSelectionContext?.total) ||

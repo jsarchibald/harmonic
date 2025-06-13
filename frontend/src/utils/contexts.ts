@@ -1,24 +1,24 @@
 import { GridRowId } from "@mui/x-data-grid";
 import { createContext, Dispatch, SetStateAction } from "react";
-import { ICollection } from "./jam-api";
 
 export interface ITableSelectionContext {
   total: number;
   pageSize: number;
-  collections: ICollection[];
   selectedCollectionId: string;
 
   snackbarOpen: boolean;
-  setSnackbarOpen: Dispatch<SetStateAction<boolean>>;
+  setSnackbarOpen?: Dispatch<SetStateAction<boolean>>;
   snackbarMessage: string;
-  setSnackbarMessage: Dispatch<SetStateAction<string>>;
+  setSnackbarMessage?: Dispatch<SetStateAction<string>>;
   snackbarProgress: number;
-  setSnackbarProgress: Dispatch<SetStateAction<boolean>>;
+  setSnackbarProgress?: Dispatch<SetStateAction<number>>;
 
   selectAllAcrossPages: boolean;
-  setSelectAllAcrossPages: Dispatch<SetStateAction<boolean>>;
-  selectionModel: readonly GridRowId[];
-  setSelectionModel: Dispatch<SetStateAction<GridRowId>>;
+  setSelectAllAcrossPages?: Dispatch<SetStateAction<boolean>>;
+  selectionModel?: readonly GridRowId[];
+  setSelectionModel?: Dispatch<SetStateAction<readonly GridRowId[]>>;
 }
 
-export const TableSelectionContext = createContext(null);
+export const TableSelectionContext = createContext<ITableSelectionContext>(
+  {} as ITableSelectionContext,
+);

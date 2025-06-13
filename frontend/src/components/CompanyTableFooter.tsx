@@ -1,4 +1,3 @@
-import { Box, TableFooter } from "@mui/material";
 import {
   GridFooterContainer,
   GridPagination,
@@ -11,8 +10,8 @@ const CompanyTableFooter = () => {
   const tableSelectionContext = useContext(TableSelectionContext);
 
   const selectedRowCount = tableSelectionContext?.selectAllAcrossPages
-    ? tableSelectionContext?.total
-    : tableSelectionContext?.selectionModel.length;
+    ? tableSelectionContext.total
+    : tableSelectionContext.selectionModel?.length || 0;
   return (
     <GridFooterContainer>
       <GridSelectedRowCount selectedRowCount={selectedRowCount} />

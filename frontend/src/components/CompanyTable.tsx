@@ -1,12 +1,9 @@
-import { DataGrid, GridRowId, useGridApiRef } from "@mui/x-data-grid";
+import { DataGrid, GridRowId } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { getCollectionsById, ICollection, ICompany } from "../utils/jam-api";
 import CompanyTableToolbar from "./CompanyTableToolbar/CompanyTableToolbar";
 import BulkActionSnackbar from "./BulkActionSnackbar";
-import {
-  TableSelectionContext,
-  tableSelectionContext,
-} from "../utils/contexts";
+import { TableSelectionContext } from "../utils/contexts";
 import CompanyTableFooter from "./CompanyTableFooter";
 
 const CompanyTable = (props: {
