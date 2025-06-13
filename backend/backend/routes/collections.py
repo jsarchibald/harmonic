@@ -6,6 +6,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from celery.result import GroupResult
+from typing import Optional
 
 from backend.db import database
 from backend.worker import create_bulk_collection_insertion, celery
@@ -32,7 +33,8 @@ class CompanyCollectionOutput(CompanyBatchOutput, CompanyCollectionMetadata):
 
 
 class CompanyCollectionAssociationInput(BaseModel):
-    company_ids: list[int]
+    company_ids: list[int] = []
+    source_collection_id: Optional[uuid.UUID] = None
 
 
 class BulkCompanyCollectionAssociationEnqueueOutput(BaseModel):
@@ -94,22 +96,27 @@ def get_company_collection_by_id(
 def add_company_associations_to_collection(
     collection_id: uuid.UUID,
     company_associations: CompanyCollectionAssociationInput,
+    db: Session = Depends(database.get_db),
 ) -> BulkCompanyCollectionAssociationEnqueueOutput:
-    """Add a company to a collection."""
+    """Add a company to a collection. If you specify both company IDs and a source collection ID, the union of all company IDs will be taken."""
+
+    company_ids = set(company_associations.company_ids)
 
     # TODO: should there be different behavior for small changes? (probably yes)
-    company_ids = company_associations.company_ids
-
+    if company_associations.source_collection_id:
+        res = db.query(database.CompanyCollectionAssociation.company_id).filter(database.CompanyCollectionAssociation.collection_id == company_associations.source_collection_id).all()
+        company_ids = company_ids.union([company_id[0] for company_id in res])
+    
     if len(company_ids) < 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You must list at least one company to add to the collection.",
+            detail="You must choose at least one company to add to the collection.",
         )
     else:
         task = create_bulk_collection_insertion(
-            collection_id=collection_id, company_ids=company_ids
+            collection_id=collection_id, company_ids=list(company_ids)
         )
-        priority = 0 if len(company_associations.company_ids) < 5 else 1
+        priority = 0 if len(company_ids) < 5 else 1
         res = task.apply_async(priority=priority).save()
 
         return BulkCompanyCollectionAssociationEnqueueOutput(
