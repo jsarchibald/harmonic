@@ -52,25 +52,23 @@ const AddCompanyToCollectionToolbarButton = ({
           message += " This might take a few minutes.";
 
         tableSelectionContext?.setSnackbarMessage(message);
+        tableSelectionContext?.setSnackbarProgress(0);
 
         let repeat = setInterval(() => {
           checkBulkCompanyAdd(response.task_id).then((response) => {
             const progress = Math.floor((response.task_count - response.status_breakdown.PENDING) / response.task_count * 100);
-            console.log(progress)
-
             tableSelectionContext?.setSnackbarProgress(progress);
-
-
 
             if (response.status == "SUCCESS") {
               tableSelectionContext?.setSnackbarOpen(true);
               let message = `Finished adding ${companies_queued} compan${companies_queued == 1 ? "y" : "ies"} to ${collection.collection_name}.`;
               tableSelectionContext?.setSnackbarMessage(message);
+              tableSelectionContext?.setSnackbarProgress(100);
 
               clearInterval(repeat);
             }
           });
-        }, 5000);
+        }, 10000);
       })
       .catch((error) => {
         tableSelectionContext?.setSnackbarOpen(true);
@@ -94,7 +92,7 @@ const AddCompanyToCollectionToolbarButton = ({
           },
         }}
       >
-        {collectionsList.map((collection) => (
+        {collectionsList.filter(collection => collection.id != tableSelectionContext?.selectedCollectionId).map((collection) => (
           <MenuItem
             key={`bulk_add_collection_menu_${collection.id}`}
             onClick={() => {

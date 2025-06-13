@@ -66,7 +66,7 @@ const CompanyTable = (props: {
             rows={response}
             rowHeight={30}
             columns={[
-              { field: "liked", headerName: "Liked", width: 90 },
+              { field: "liked", headerName: "Liked", width: 90, type: "boolean" },
               { field: "id", headerName: "ID", width: 90 },
               { field: "company_name", headerName: "Company Name", width: 200 },
             ]}

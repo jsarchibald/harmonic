@@ -4,10 +4,13 @@ import { TableSelectionContext } from "../utils/contexts";
 import { useContext } from "react";
 import { Close } from "@mui/icons-material";
 import {
+  Box,
   CircularProgress,
   LinearProgress,
   SnackbarContent,
+  Stack,
 } from "@mui/material";
+import CircularProgressWithLabel from "./CircularProgressWithLabel";
 
 export default function BulkActionSnackbar() {
   const snackbarContext = useContext(TableSelectionContext);
@@ -28,12 +31,14 @@ export default function BulkActionSnackbar() {
   // If snackbarContext?.snackbarProgress < 0, then it is disabled.
   // This avoids the need to maintain yet another state.
   const message = (
-    <>
+    <Stack direction={"row"}  spacing={2} alignItems={"center"}>
       {snackbarContext?.snackbarProgress >= 0 && (
-        <CircularProgress variant="determinate" value={snackbarContext?.snackbarProgress} />
+        <CircularProgressWithLabel variant="determinate" value={snackbarContext?.snackbarProgress} size={"2rem"} />
       )}
+      <Box>
       {snackbarContext?.snackbarMessage}
-    </>
+      </Box>
+    </Stack>
   );
 
   const action = (
