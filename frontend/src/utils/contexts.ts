@@ -1,5 +1,5 @@
 import { GridRowId } from "@mui/x-data-grid";
-import { createContext, Dispatch, SetStateAction } from "react";
+import { createContext, Dispatch, ReactNode, SetStateAction } from "react";
 
 /* The state of the Bulk Action snackbar */
 export interface IBulkActionSnackbarState {
@@ -7,7 +7,7 @@ export interface IBulkActionSnackbarState {
   message: string;
   showProgress: boolean;
   progress: number;
-  additionalAction?: Node;
+  additionalAction: ReactNode | null;
   autoHideDuration: number | null;
 }
 
@@ -24,6 +24,8 @@ export interface ICompanyTableContext {
   setSelectAllAcrossPages?: Dispatch<SetStateAction<boolean>>;
   selectionModel?: readonly GridRowId[];
   setSelectionModel?: Dispatch<SetStateAction<readonly GridRowId[]>>;
+  forceReload: boolean;
+  setForceReload?: Dispatch<SetStateAction<boolean>>;
 }
 
 export const CompanyTableContext = createContext<ICompanyTableContext>(

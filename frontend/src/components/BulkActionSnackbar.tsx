@@ -18,7 +18,10 @@ export default function BulkActionSnackbar() {
       return;
     }
 
-    companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, open: false});;
+    companyTableContext.setSnackbarState?.({
+      ...companyTableContext.snackbarState,
+      open: false,
+    });
   };
 
   // If snackbarContext?.progress < 0, then it is disabled.
@@ -37,6 +40,7 @@ export default function BulkActionSnackbar() {
 
   const action = (
     <>
+      {companyTableContext.snackbarState.additionalAction || ""}{" "}
       <IconButton
         size="small"
         aria-label="close"
