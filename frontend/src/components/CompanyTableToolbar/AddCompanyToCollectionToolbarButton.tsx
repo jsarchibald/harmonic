@@ -35,13 +35,6 @@ const AddCompanyToCollectionToolbarButton = ({
   ) => {
     let monitorLoop = setInterval(() => {
       getBulkCompanyAdditionStatus(task_id).then((response) => {
-        const progress = Math.floor(
-          ((response.task_count - response.status_breakdown.PENDING) /
-            response.task_count) *
-            100,
-        );
-        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, progress: progress});
-
         // If it succeeds or fails, alert the user
         if (response.status == "SUCCESS") {
           let message = `Finished adding ${companies_queued_count} compan${companies_queued_count == 1 ? "y" : "ies"} to ${destination_collection.collection_name}.`;
@@ -52,6 +45,16 @@ const AddCompanyToCollectionToolbarButton = ({
           let message = `Failed to add companies to ${destination_collection.collection_name}.`;
           companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, message: message, showProgress: false, open: true, autoHideDuration: 5000});
           clearInterval(monitorLoop)
+        }
+
+        // Update progress if still working
+        else {
+          const progress = Math.floor(
+          ((response.task_count - response.status_breakdown.PENDING) /
+            response.task_count) *
+            100,
+        );
+          companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, progress: progress});
         }
       });
     }, 10000);
@@ -87,8 +90,7 @@ const AddCompanyToCollectionToolbarButton = ({
         );
       })
       .catch((error) => {
-        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, open: true});;
-        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, message: error.response.data.detail});
+        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, open: true, message: error.response.data.detail});;
       });
   };
 
