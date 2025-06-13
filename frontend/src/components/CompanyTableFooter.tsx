@@ -5,7 +5,7 @@ import {
   GridSelectedRowCount,
 } from "@mui/x-data-grid";
 import { useContext } from "react";
-import { TableSelectionContext } from "../../utils/contexts";
+import { TableSelectionContext } from "../utils/contexts";
 
 const CompanyTableFooter = () => {
   const tableSelectionContext = useContext(TableSelectionContext);

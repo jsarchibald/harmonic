@@ -7,7 +7,7 @@ import {
   TableSelectionContext,
   tableSelectionContext,
 } from "../utils/contexts";
-import CompanyTableFooter from "./CompanyTableToolbar/CompanyTableFooter";
+import CompanyTableFooter from "./CompanyTableFooter";
 
 const CompanyTable = (props: {
   selectedCollectionId: string;
