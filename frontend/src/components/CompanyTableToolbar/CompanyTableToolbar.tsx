@@ -7,15 +7,16 @@ import { useContext } from "react";
 import { ICollection } from "../../utils/jam-api";
 import { Divider, Stack } from "@mui/material";
 import AddCompanyToCollectionToolbarButton from "./AddCompanyToCollectionToolbarButton";
-import { TableSelectionContext } from "../../utils/contexts";
+import { CompanyTableContext } from "../../utils/contexts";
 import SelectAllAcrossPagesAlert from "./SelectAllAcrossPagesAlert";
 
+/* A custom toolbar for our Data Grid component (CompanyTable). */
 const CompanyTableToolbar = ({
   collectionsList,
 }: {
   collectionsList: ICollection[];
 }) => {
-  const companyTableContext = useContext(TableSelectionContext);
+  const companyTableContext = useContext(CompanyTableContext);
 
   // When the Select All button is set to false, set the toggle for selection across all pages
   const apiRef = useGridApiContext();

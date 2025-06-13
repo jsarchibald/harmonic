@@ -1,15 +1,17 @@
 import { GridRowId } from "@mui/x-data-grid";
 import { createContext, Dispatch, SetStateAction } from "react";
 
+/* The state of the Bulk Action snackbar */
 export interface IBulkActionSnackbarState {
   snackbarOpen: boolean;
   snackbarMessage: string;
   snackbarShowProgress: boolean;
   snackbarProgress: number;
-  snackbarAction?: Node;
+  snackbarAdditionalAction?: Node;
 }
 
-export interface ITableSelectionContext {
+/* The context containing the high-level state of the CompanyTable. */
+export interface ICompanyTableContext {
   total: number;
   pageSize: number;
   selectedCollectionId: string;
@@ -23,6 +25,6 @@ export interface ITableSelectionContext {
   setSelectionModel?: Dispatch<SetStateAction<readonly GridRowId[]>>;
 }
 
-export const TableSelectionContext = createContext<ITableSelectionContext>(
-  {} as ITableSelectionContext,
+export const CompanyTableContext = createContext<ICompanyTableContext>(
+  {} as ICompanyTableContext,
 );

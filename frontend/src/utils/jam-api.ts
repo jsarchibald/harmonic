@@ -17,11 +17,13 @@ export interface ICompanyBatchResponse {
   companies: ICompany[];
 }
 
+/* The response when we enqueue a bulk operation. */
 export interface IBulkOperationEnqueueResponse {
   task_id: string;
   companies_queued_count: number;
 }
 
+/* The interface from Celery states to task counts. */
 export interface IBulkOperationTaskStateCounts {
   FAILURE: number;
   PENDING: number;
@@ -32,6 +34,7 @@ export interface IBulkOperationTaskStateCounts {
   SUCCESS: number;
 }
 
+/* The response when we get the status of a bulk opearation. */
 export interface IBulkOperationStatusResponse {
   task_id: string;
   status: string;
@@ -88,6 +91,7 @@ export async function getCollectionsMetadata(): Promise<ICollection[]> {
   }
 }
 
+/* Add companies to a collection. */
 export async function addCompaniesToCollection(
   collecton_id: string,
   company_ids: number[],
@@ -105,7 +109,8 @@ export async function addCompaniesToCollection(
   }
 }
 
-export async function checkBulkCompanyAdd(
+/* Get the status of a bulk operation adding companies to a collection. */
+export async function getBulkCompanyAdditionStatus(
   task_id: string,
 ): Promise<IBulkOperationStatusResponse> {
   try {

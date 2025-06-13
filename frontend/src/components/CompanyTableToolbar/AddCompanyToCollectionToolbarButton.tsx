@@ -2,13 +2,14 @@ import { GridRowId } from "@mui/x-data-grid";
 import { useContext, useState } from "react";
 import {
   addCompaniesToCollection,
-  checkBulkCompanyAdd,
+  getBulkCompanyAdditionStatus,
   ICollection,
 } from "../../utils/jam-api";
 import { Box, Button, Menu, MenuItem } from "@mui/material";
-import { TableSelectionContext } from "../../utils/contexts";
+import { CompanyTableContext } from "../../utils/contexts";
 import { NumberFormat } from "../../utils/formatting";
 
+/* A toolbar button that allows the user to add selected companies to a collection. */
 const AddCompanyToCollectionToolbarButton = ({
   selectionModel,
   collectionsList,
@@ -18,7 +19,7 @@ const AddCompanyToCollectionToolbarButton = ({
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const companyTableContext = useContext(TableSelectionContext);
+  const companyTableContext = useContext(CompanyTableContext);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -33,7 +34,7 @@ const AddCompanyToCollectionToolbarButton = ({
     destination_collection: ICollection,
   ) => {
     let monitorLoop = setInterval(() => {
-      checkBulkCompanyAdd(task_id).then((response) => {
+      getBulkCompanyAdditionStatus(task_id).then((response) => {
         const progress = Math.floor(
           ((response.task_count - response.status_breakdown.PENDING) /
             response.task_count) *

@@ -1,10 +1,11 @@
 import { Alert, Box, Divider, Link } from "@mui/material";
 import { NumberFormat } from "../../utils/formatting";
 import { useContext } from "react";
-import { TableSelectionContext } from "../../utils/contexts";
+import { CompanyTableContext } from "../../utils/contexts";
 
+/* An alert that appears in the Data Grid toolbar, offering the user the option to select all companies across all pages. */
 const SelectAllAcrossPagesAlert = () => {
-  const companyTableContext = useContext(TableSelectionContext);
+  const companyTableContext = useContext(CompanyTableContext);
   const total_formatted = NumberFormat.format(companyTableContext?.total);
 
   let preface,

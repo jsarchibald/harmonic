@@ -5,6 +5,7 @@ import CircularProgress, {
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 
+/* Circular progress indicator but with a percentage label in the middle. */
 function CircularProgressWithLabel(
   props: CircularProgressProps & { value: number },
 ) {

@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import { getCollectionsById, ICollection, ICompany } from "../utils/jam-api";
 import CompanyTableToolbar from "./CompanyTableToolbar/CompanyTableToolbar";
 import BulkActionSnackbar from "./BulkActionSnackbar";
-import { IBulkActionSnackbarState, TableSelectionContext } from "../utils/contexts";
+import { IBulkActionSnackbarState, CompanyTableContext } from "../utils/contexts";
 import CompanyTableFooter from "./CompanyTableFooter";
 
+/* The main company table component. */
 const CompanyTable = (props: {
   selectedCollectionId: string;
   allCollections?: ICollection[];
@@ -19,7 +20,7 @@ const CompanyTable = (props: {
     snackbarMessage: '',
     snackbarShowProgress: false,
     snackbarProgress: -1,
-    snackbarAction: undefined,
+    snackbarAdditionalAction: undefined,
   });
   const [selectAllAcrossPages, setSelectAllAcrossPages] = useState(false);
   const [selectionModel, setSelectionModel] = useState<readonly GridRowId[]>(
@@ -45,7 +46,7 @@ const CompanyTable = (props: {
 
   return (
     total != undefined && (
-      <TableSelectionContext.Provider
+      <CompanyTableContext.Provider
         value={{
           snackbarState,
           setSnackbarState,
@@ -105,7 +106,7 @@ const CompanyTable = (props: {
           />
           <BulkActionSnackbar />
         </div>
-      </TableSelectionContext.Provider>
+      </CompanyTableContext.Provider>
     )
   );
 };
