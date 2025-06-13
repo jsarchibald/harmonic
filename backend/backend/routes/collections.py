@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, Query, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
 from celery.result import GroupResult
 from celery.states import ALL_STATES as ALL_KNOWN_CELERY_STATES
 from typing import Optional
@@ -34,16 +33,19 @@ class CompanyCollectionOutput(CompanyBatchOutput, CompanyCollectionMetadata):
 
 
 class CompanyCollectionAssociationInput(BaseModel):
+    """The input expected in order to enqueue a bulk addition of companies to a collection."""
     company_ids: list[int] = []
     source_collection_id: Optional[uuid.UUID] = None
 
 
 class BulkCompanyCollectionAssociationEnqueueOutput(BaseModel):
+    """The output from enqueueing a bulk addition of companies to a collection."""
     task_id: uuid.UUID
     companies_queued_count: int
 
 
 class BulkCompanyCollectionAssociationStatusOutput(BaseModel):
+    """The output of a status check for an individual task in Celery."""
     task_id: uuid.UUID
     status: str
     task_count: int
@@ -102,11 +104,17 @@ def add_company_associations_to_collection(
     company_associations: CompanyCollectionAssociationInput,
     db: Session = Depends(database.get_db),
 ) -> BulkCompanyCollectionAssociationEnqueueOutput:
-    """Add a company to a collection. If you specify both company IDs and a source collection ID, the union of all company IDs will be taken."""
+    """Add a company to a collection.
+        If you specify both company IDs and a source collection ID,
+        the union of all company IDs will be taken.
+    """
 
     company_ids = set(company_associations.company_ids)
 
-    # TODO: should there be different behavior for small changes? (probably yes)
+    # If an entire collection is being added, get all the company IDs therein.
+    # This is done at the enqueuement since it represents the current "selection"
+    # on the frontend -- doing it at task spinup, if not done carefully/immediately,
+    # could have the side effect of adding more companies than the user expected.
     if company_associations.source_collection_id:
         res = (
             db.query(database.CompanyCollectionAssociation.company_id)
@@ -118,24 +126,25 @@ def add_company_associations_to_collection(
         )
         company_ids = company_ids.union([company_id[0] for company_id in res])
 
+    # TODO: should there be different behavior for small changes? (probably yes)
     if len(company_ids) < 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You must choose at least one company to add to the collection.",
         )
-    else:
-        # Note that we convert company_ids back to a list since that is what is
-        # expected by the Celery task, and since the ordering of elements matters therein
-        task = create_bulk_collection_insertion(
-            collection_id=collection_id, company_ids=list(company_ids)
-        )
-        priority = 0 if len(company_ids) < 5 else 1
-        res = task.apply_async(priority=priority).save()
+    
+    # Note that we convert company_ids back to a list since that is what is
+    # expected by the Celery task, and since the ordering of elements matters therein
+    task = create_bulk_collection_insertion(
+        collection_id=collection_id, company_ids=list(company_ids)
+    )
+    priority = 0 if len(company_ids) < 5 else 1
+    res = task.apply_async(priority=priority).save()
 
-        return BulkCompanyCollectionAssociationEnqueueOutput(
-            task_id=res.id,
-            companies_queued_count=len(company_ids),
-        )
+    return BulkCompanyCollectionAssociationEnqueueOutput(
+        task_id=res.id,
+        companies_queued_count=len(company_ids),
+    )
 
 
 @router.get("/bulk_operation/{task_id}")
@@ -145,6 +154,12 @@ def get_bulk_operation_status(
     """Get the current status of a bulk operation."""
     task_result = GroupResult.restore(task_id, app=celery)
 
+    if not task_result:
+        raise HTTPException(404, detail="Couldn't find a task with that ID.")
+
+    # Get the status of all child tasks. Note that this doesn't seem
+    # to have a notable performance decrease -- results doesn't appear
+    # to be lazy-loaded -- so it's fine.
     status_breakdown = dict.fromkeys(ALL_KNOWN_CELERY_STATES, 0)
     for task in task_result.results:
         if task.state in ALL_KNOWN_CELERY_STATES:

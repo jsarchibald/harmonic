@@ -34,6 +34,7 @@ def add_companies_to_collection(
 
     successful_companies = 0
     with database.SessionLocal() as db:
+        # Attempt a bulk insertion to lower DB round trips
         try:
             query = (
                 insert(database.CompanyCollectionAssociation.__table__)
@@ -47,12 +48,15 @@ def add_companies_to_collection(
             )
             db.execute(query)
             db.commit()
-
             successful_companies = len(company_ids)
+
+        # In the event of a (known) bulk insertion error, like a ForeignKeyViolation,
+        # retry insertions individually so as to only skip the failed rows.
         except IntegrityError as e:
             db.rollback()
             if isinstance(e.orig, ForeignKeyViolation):
                 # Retry individually -- slower than a bulk insert, but we will insert every company that does exist
+                # TODO: update task meta with the set of failed companies so specific results can be reported
                 for company_id in company_ids:
                     try:
                         association = database.CompanyCollectionAssociation(
@@ -68,6 +72,8 @@ def add_companies_to_collection(
                             raise
 
                 db.commit()
+            
+            # In case of unknown errors, just raise them
             else:
                 raise
 
