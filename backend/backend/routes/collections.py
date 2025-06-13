@@ -162,5 +162,5 @@ def get_bulk_operation_status(
             if task_result.failed()
             else "PENDING"
         ),
-        status_breakdown = status_breakdown,
+        status_breakdown=status_breakdown,
     )

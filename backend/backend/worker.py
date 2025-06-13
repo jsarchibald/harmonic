@@ -25,7 +25,7 @@ def add_companies_to_collection(
     company_ids: list[int],
 ) -> int:
     """Adds a chunk of companies to a collection and updates the progress in DB.
-    
+
     Returns:
         int: the number of companies successfully added (or skipped adding) to the collection.
     Raises:
@@ -70,14 +70,16 @@ def add_companies_to_collection(
                 db.commit()
             else:
                 raise
-    
+
     return successful_companies
 
 
 @celery.task(name="create_bulk_collection_insertion")
-def create_bulk_collection_insertion(collection_id: uuid.UUID, company_ids: list[int]) -> group:
+def create_bulk_collection_insertion(
+    collection_id: uuid.UUID, company_ids: list[int]
+) -> group:
     """Enqueues chunks of company IDs to be associated with a collection.
-    
+
     Returns:
         group: the Celery group managing all the subtasks.
     """
