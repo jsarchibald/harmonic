@@ -7,6 +7,7 @@ import {
 } from "../../utils/jam-api";
 import { Box, Button, Menu, MenuItem } from "@mui/material";
 import { TableSelectionContext } from "../../utils/contexts";
+import { NumberFormat } from "../../utils/numbers";
 
 const AddCompanyToCollectionToolbarButton = ({
   selectionModel,
@@ -33,13 +34,23 @@ const AddCompanyToCollectionToolbarButton = ({
     selectedRows: readonly GridRowId[],
   ) => {
     // Start bulk operation
-    addCompaniesToCollection(collection.id, selectedRows.map(Number))
+    let company_ids = [];
+    let source_collection_id = null;
+    if (tableSelectionContext?.selectAllAcrossPages) {
+      source_collection_id = tableSelectionContext?.selectedCollectionId;
+    } else {
+      company_ids = tableSelectionContext?.selectionModel;
+    }
+
+    addCompaniesToCollection(collection.id, company_ids, source_collection_id)
       .then((response) => {
         const companies_queued = response.companies_queued;
         tableSelectionContext?.setSnackbarOpen(true);
-        let message = `Adding ${companies_queued} compan${companies_queued == 1 ? "y" : "ies"} to ${collection.collection_name}.`;
+
+        let message = `Adding ${NumberFormat.format(companies_queued)} compan${companies_queued == 1 ? "y" : "ies"} to ${collection.collection_name}.`;
         if (response.companies_queued > 10)
           message += " This might take a few minutes.";
+
         tableSelectionContext?.setSnackbarMessage(message);
         tableSelectionContext?.setSelectionModel([]);
         tableSelectionContext?.setSelectAllAcrossPages(false);

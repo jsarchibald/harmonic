@@ -55,6 +55,7 @@ const CompanyTable = (props: {
           setSelectionModel,
           selectAllAcrossPages,
           setSelectAllAcrossPages,
+          selectedCollectionId: props.selectedCollectionId,
         }}
       >
         <div style={{ height: 600, width: "100%" }}>
