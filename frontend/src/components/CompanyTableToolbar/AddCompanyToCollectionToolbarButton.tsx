@@ -39,20 +39,20 @@ const AddCompanyToCollectionToolbarButton = ({
             response.task_count) *
             100,
         );
-        tableSelectionContext.setSnackbarProgress?.(progress);
+        tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarProgress: progress});
 
         if (response.status == "SUCCESS") {
-          tableSelectionContext.setSnackbarOpen?.(true);
+          tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarOpen: true});
           let message = `Finished adding ${companies_queued_count} compan${companies_queued_count == 1 ? "y" : "ies"} to ${destination_collection.collection_name}.`;
-          tableSelectionContext.setSnackbarMessage?.(message);
-          tableSelectionContext.setSnackbarProgress?.(100);
+          tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarMessage: message});
+          tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarProgress: 100});
 
           clearInterval(monitorLoop);
 
           // An alternative to this is to set another state value that gets
           // passed to the snackbar, but the state is already getting a bit heavy.
           let closeSnackbar = setTimeout(() => {
-            tableSelectionContext.setSnackbarOpen?.(false);
+            tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarOpen: false});;
           }, 5000);
           clearTimeout(closeSnackbar);
         }
@@ -77,14 +77,14 @@ const AddCompanyToCollectionToolbarButton = ({
     )
       .then((response) => {
         const companies_queued_count = response.companies_queued_count;
-        tableSelectionContext.setSnackbarOpen?.(true);
+        tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarOpen: true});;
 
         let message = `Adding ${NumberFormat.format(companies_queued_count)} compan${companies_queued_count == 1 ? "y" : "ies"} to ${destination_collection.collection_name}.`;
         if (response.companies_queued_count > 10)
           message += " This might take a few minutes.";
 
-        tableSelectionContext.setSnackbarMessage?.(message);
-        tableSelectionContext.setSnackbarProgress?.(0);
+        tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarMessage: message});
+        tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarProgress: 0});
 
         monitorBulkAdd(
           response.task_id,
@@ -93,8 +93,8 @@ const AddCompanyToCollectionToolbarButton = ({
         );
       })
       .catch((error) => {
-        tableSelectionContext.setSnackbarOpen?.(true);
-        tableSelectionContext.setSnackbarMessage?.(error.response.data.detail);
+        tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarOpen: true});;
+        tableSelectionContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarMessage: error.response.data.detail});
       });
   };
 

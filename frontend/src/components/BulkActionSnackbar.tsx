@@ -17,7 +17,7 @@ export default function BulkActionSnackbar() {
       return;
     }
 
-    snackbarContext.setSnackbarOpen?.(false);
+    snackbarContext.setSnackbarState?.({...tableSelectionContext.snackbarState, snackbarOpen: false});;
   };
 
   // If snackbarContext?.snackbarProgress < 0, then it is disabled.

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { getCollectionsById, ICollection, ICompany } from "../utils/jam-api";
 import CompanyTableToolbar from "./CompanyTableToolbar/CompanyTableToolbar";
 import BulkActionSnackbar from "./BulkActionSnackbar";
-import { TableSelectionContext } from "../utils/contexts";
+import { IBulkActionSnackbarState, TableSelectionContext } from "../utils/contexts";
 import CompanyTableFooter from "./CompanyTableFooter";
 
 const CompanyTable = (props: {
@@ -14,9 +14,13 @@ const CompanyTable = (props: {
   const [total, setTotal] = useState<number>();
   const [offset, setOffset] = useState<number>(0);
   const [pageSize, setPageSize] = useState(25);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarProgress, setSnackbarProgress] = useState(-1);
+  const [snackbarState, setSnackbarState] = useState<IBulkActionSnackbarState>({
+    snackbarOpen: false,
+    snackbarMessage: '',
+    snackbarShowProgress: false,
+    snackbarProgress: -1,
+    snackbarAction: undefined,
+  });
   const [selectAllAcrossPages, setSelectAllAcrossPages] = useState(false);
   const [selectionModel, setSelectionModel] = useState<readonly GridRowId[]>(
     [],
@@ -43,12 +47,8 @@ const CompanyTable = (props: {
     total != undefined && (
       <TableSelectionContext.Provider
         value={{
-          snackbarOpen,
-          setSnackbarOpen,
-          snackbarMessage,
-          setSnackbarMessage,
-          snackbarProgress,
-          setSnackbarProgress,
+          snackbarState,
+          setSnackbarState,
           total,
           pageSize,
           selectionModel,
