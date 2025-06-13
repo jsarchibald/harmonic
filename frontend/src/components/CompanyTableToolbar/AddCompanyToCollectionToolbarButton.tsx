@@ -7,17 +7,13 @@ import {
 } from "../../utils/jam-api";
 import { Box, Button, Menu, MenuItem } from "@mui/material";
 import { TableSelectionContext } from "../../utils/contexts";
-import { NumberFormat } from "../../utils/numbers";
+import { NumberFormat } from "../../utils/formatting";
 
 const AddCompanyToCollectionToolbarButton = ({
   selectionModel,
-  pageSize,
-  total,
   collectionsList,
 }: {
   selectionModel: readonly GridRowId[];
-  pageSize: number;
-  total: number;
   collectionsList: ICollection[];
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -29,52 +25,78 @@ const AddCompanyToCollectionToolbarButton = ({
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const triggerBulkAdd = (
-    collection: ICollection,
-    selectedRows: readonly GridRowId[],
+
+  /* Monitors the bulk addition of companies to a collection. */
+  const monitorBulkAdd = (
+    task_id: string,
+    companies_queued_count: number,
+    destination_collection: ICollection,
   ) => {
-    // Start bulk operation
-    let company_ids = [];
+    let monitorLoop = setInterval(() => {
+      checkBulkCompanyAdd(task_id).then((response) => {
+        const progress = Math.floor(
+          ((response.task_count - response.status_breakdown.PENDING) /
+            response.task_count) *
+            100,
+        );
+        tableSelectionContext.setSnackbarProgress?.(progress);
+
+        if (response.status == "SUCCESS") {
+          tableSelectionContext.setSnackbarOpen?.(true);
+          let message = `Finished adding ${companies_queued_count} compan${companies_queued_count == 1 ? "y" : "ies"} to ${destination_collection.collection_name}.`;
+          tableSelectionContext.setSnackbarMessage?.(message);
+          tableSelectionContext.setSnackbarProgress?.(100);
+
+          clearInterval(monitorLoop);
+
+          // An alternative to this is to set another state value that gets
+          // passed to the snackbar, but the state is already getting a bit heavy.
+          let closeSnackbar = setTimeout(() => {
+            tableSelectionContext.setSnackbarOpen?.(false);
+          }, 5000);
+          clearTimeout(closeSnackbar);
+        }
+      });
+    }, 10000);
+  };
+
+  /* Triggers the bulk addition of companies to a destination. */
+  const triggerBulkAdd = (destination_collection: ICollection) => {
+    let company_ids: number[] = [];
     let source_collection_id = null;
     if (tableSelectionContext?.selectAllAcrossPages) {
       source_collection_id = tableSelectionContext?.selectedCollectionId;
     } else {
-      company_ids = tableSelectionContext?.selectionModel;
+      company_ids = tableSelectionContext.selectionModel?.map(Number) || [];
     }
 
-    addCompaniesToCollection(collection.id, company_ids, source_collection_id)
+    addCompaniesToCollection(
+      destination_collection.id,
+      company_ids,
+      source_collection_id,
+    )
       .then((response) => {
-        const companies_queued = response.companies_queued;
-        tableSelectionContext?.setSnackbarOpen(true);
+        const companies_queued_count = response.companies_queued_count;
+        tableSelectionContext.setSnackbarOpen?.(true);
 
-        let message = `Adding ${NumberFormat.format(companies_queued)} compan${companies_queued == 1 ? "y" : "ies"} to ${collection.collection_name}.`;
-        if (response.companies_queued > 10)
+        let message = `Adding ${NumberFormat.format(companies_queued_count)} compan${companies_queued_count == 1 ? "y" : "ies"} to ${destination_collection.collection_name}.`;
+        if (response.companies_queued_count > 10)
           message += " This might take a few minutes.";
 
-        tableSelectionContext?.setSnackbarMessage(message);
-        tableSelectionContext?.setSelectionModel([]);
-        tableSelectionContext?.setSelectAllAcrossPages(false);
+        tableSelectionContext.setSnackbarMessage?.(message);
+        tableSelectionContext.setSnackbarProgress?.(0);
 
-        let repeat = setInterval(() => {
-          checkBulkCompanyAdd(response.task_id).then((response) => {
-            if (response.status == "SUCCESS") {
-              tableSelectionContext?.setSnackbarOpen(true);
-              let message = `Finished adding ${companies_queued} compan${companies_queued == 1 ? "y" : "ies"} to ${collection.collection_name}.`;
-              tableSelectionContext?.setSnackbarMessage(message);
-
-              clearInterval(repeat);
-            }
-          });
-        }, 5000);
+        monitorBulkAdd(
+          response.task_id,
+          companies_queued_count,
+          destination_collection,
+        );
       })
       .catch((error) => {
-        console.log(error);
-        tableSelectionContext?.setSnackbarOpen(true);
-        tableSelectionContext?.setSnackbarMessage(error.response.data.detail);
+        tableSelectionContext.setSnackbarOpen?.(true);
+        tableSelectionContext.setSnackbarMessage?.(error.response.data.detail);
       });
   };
-
-  console.log(pageSize, total, selectionModel.length);
 
   return (
     <Box alignItems={"flex-start"} textAlign={"left"}>
@@ -86,22 +108,22 @@ const AddCompanyToCollectionToolbarButton = ({
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        slotProps={{
-          list: {
-            "aria-labelledby": "basic-button",
-          },
-        }}
       >
-        {collectionsList.map((collection) => (
-          <MenuItem
-            key={`bulk_add_collection_menu_${collection.id}`}
-            onClick={() => {
-              triggerBulkAdd(collection, selectionModel);
-            }}
-          >
-            {collection.collection_name}
-          </MenuItem>
-        ))}
+        {collectionsList
+          .filter(
+            (collection) =>
+              collection.id != tableSelectionContext?.selectedCollectionId,
+          )
+          .map((collection) => (
+            <MenuItem
+              key={`bulk_add_collection_menu_${collection.id}`}
+              onClick={() => {
+                triggerBulkAdd(collection);
+              }}
+            >
+              {collection.collection_name}
+            </MenuItem>
+          ))}
       </Menu>
     </Box>
   );

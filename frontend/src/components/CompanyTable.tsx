@@ -1,13 +1,10 @@
-import { DataGrid, GridRowId, useGridApiRef } from "@mui/x-data-grid";
+import { DataGrid, GridRowId } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { getCollectionsById, ICollection, ICompany } from "../utils/jam-api";
 import CompanyTableToolbar from "./CompanyTableToolbar/CompanyTableToolbar";
 import BulkActionSnackbar from "./BulkActionSnackbar";
-import {
-  TableSelectionContext,
-  tableSelectionContext,
-} from "../utils/contexts";
-import CompanyTableFooter from "./CompanyTableToolbar/CompanyTableFooter";
+import { TableSelectionContext } from "../utils/contexts";
+import CompanyTableFooter from "./CompanyTableFooter";
 
 const CompanyTable = (props: {
   selectedCollectionId: string;
@@ -19,6 +16,7 @@ const CompanyTable = (props: {
   const [pageSize, setPageSize] = useState(25);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarProgress, setSnackbarProgress] = useState(-1);
   const [selectAllAcrossPages, setSelectAllAcrossPages] = useState(false);
   const [selectionModel, setSelectionModel] = useState<readonly GridRowId[]>(
     [],
@@ -49,6 +47,8 @@ const CompanyTable = (props: {
           setSnackbarOpen,
           snackbarMessage,
           setSnackbarMessage,
+          snackbarProgress,
+          setSnackbarProgress,
           total,
           pageSize,
           selectionModel,
@@ -63,7 +63,12 @@ const CompanyTable = (props: {
             rows={response}
             rowHeight={30}
             columns={[
-              { field: "liked", headerName: "Liked", width: 90 },
+              {
+                field: "liked",
+                headerName: "Liked",
+                width: 90,
+                type: "boolean",
+              },
               { field: "id", headerName: "ID", width: 90 },
               { field: "company_name", headerName: "Company Name", width: 200 },
             ]}

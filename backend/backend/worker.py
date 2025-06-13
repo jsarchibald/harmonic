@@ -4,8 +4,8 @@ import uuid
 from celery import Celery, group
 from backend.db import database
 from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from psycopg2.errors import UniqueViolation, ForeignKeyViolation
+from sqlalchemy.exc import IntegrityError
+from psycopg2.errors import ForeignKeyViolation
 
 celery = Celery(__name__)
 celery.conf.broker_url = os.environ.get(
@@ -23,9 +23,16 @@ CHUNK_SIZE = 100
 def add_companies_to_collection(
     collection_id: uuid.UUID,
     company_ids: list[int],
-):
-    """Adds a chunk of companies to a collection and updates the progress in DB."""
+) -> int:
+    """Adds a chunk of companies to a collection and updates the progress in DB.
 
+    Returns:
+        int: the number of companies successfully added (or skipped adding) to the collection.
+    Raises:
+        IntegrityError: as long as it's not a ForeignKeyViolation, which is handled.
+    """
+
+    successful_companies = 0
     with database.SessionLocal() as db:
         try:
             query = (
@@ -40,11 +47,12 @@ def add_companies_to_collection(
             )
             db.execute(query)
             db.commit()
+
+            successful_companies = len(company_ids)
         except IntegrityError as e:
             db.rollback()
             if isinstance(e.orig, ForeignKeyViolation):
                 # Retry individually -- slower than a bulk insert, but we will insert every company that does exist
-                nonexistent_company_ids = set()
                 for company_id in company_ids:
                     try:
                         association = database.CompanyCollectionAssociation(
@@ -52,27 +60,38 @@ def add_companies_to_collection(
                         )
                         db.add(association)
                         db.flush()
+                        successful_companies += 1
                     except IntegrityError as e:
                         if isinstance(e.orig, ForeignKeyViolation):
                             db.rollback()
-                            nonexistent_company_ids.add(company_id)
                         else:
-                            pass
+                            raise
 
-                # TODO: notify the user of a partial failure
                 db.commit()
             else:
                 raise
 
+    return successful_companies
+
 
 @celery.task(name="create_bulk_collection_insertion")
-def create_bulk_collection_insertion(collection_id: uuid.UUID, company_ids: list[int]):
+def create_bulk_collection_insertion(
+    collection_id: uuid.UUID, company_ids: list[int]
+) -> group:
+    """Enqueues chunks of company IDs to be associated with a collection.
+
+    Returns:
+        group: the Celery group managing all the subtasks.
+    """
+
     # Divide into chunks
     chunks = [
         (collection_id, company_ids[i : i + CHUNK_SIZE])
         for i in range(0, len(company_ids), CHUNK_SIZE)
     ]
+
     # Process each chunk as part of a group
     result = group(add_companies_to_collection.s(*chunk) for chunk in chunks)
+
     # We can use this ID to get the chunk progress
     return result

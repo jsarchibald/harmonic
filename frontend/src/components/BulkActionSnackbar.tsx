@@ -3,22 +3,36 @@ import IconButton from "@mui/material/IconButton";
 import { TableSelectionContext } from "../utils/contexts";
 import { useContext } from "react";
 import { Close } from "@mui/icons-material";
+import { Box, Stack } from "@mui/material";
+import CircularProgressWithLabel from "./CircularProgressWithLabel";
 
 export default function BulkActionSnackbar() {
   const snackbarContext = useContext(TableSelectionContext);
 
   const handleClose = (
-    event: React.SyntheticEvent | Event,
+    _: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
     if (reason === "clickaway") {
       return;
     }
 
-    if (snackbarContext?.setSnackbarOpen !== undefined) {
-      snackbarContext?.setSnackbarOpen(false);
-    }
+    snackbarContext.setSnackbarOpen?.(false);
   };
+
+  // If snackbarContext?.snackbarProgress < 0, then it is disabled.
+  // This avoids the need to maintain yet another state.
+  const message = (
+    <Stack direction={"row"} spacing={2} alignItems={"center"}>
+      {snackbarContext?.snackbarProgress >= 0 && (
+        <CircularProgressWithLabel
+          variant="determinate"
+          value={snackbarContext?.snackbarProgress}
+        />
+      )}
+      <Box>{snackbarContext?.snackbarMessage}</Box>
+    </Stack>
+  );
 
   const action = (
     <>
@@ -36,11 +50,10 @@ export default function BulkActionSnackbar() {
   return (
     <Snackbar
       open={snackbarContext?.snackbarOpen}
-      autoHideDuration={5000}
       onClose={handleClose}
-      message={snackbarContext?.snackbarMessage}
+      message={message}
       action={action}
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-    />
+    ></Snackbar>
   );
 }

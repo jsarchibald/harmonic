@@ -1,11 +1,10 @@
 import { Alert, Box, Divider, Link } from "@mui/material";
-import { NumberFormat } from "../../utils/numbers";
+import { NumberFormat } from "../../utils/formatting";
 import { useContext } from "react";
 import { TableSelectionContext } from "../../utils/contexts";
 
 const SelectAllAcrossPagesAlert = () => {
   const tableSelectionContext = useContext(TableSelectionContext);
-  console.log(tableSelectionContext?.selectAllAcrossPages);
   const total_formatted = NumberFormat.format(tableSelectionContext?.total);
 
   let preface,
@@ -20,9 +19,9 @@ const SelectAllAcrossPagesAlert = () => {
 
   const toggleSelectAllAcrossPages = () => {
     if (tableSelectionContext?.selectAllAcrossPages) {
-      tableSelectionContext?.setSelectionModel([]);
+      tableSelectionContext.setSelectionModel?.([]);
     }
-    tableSelectionContext?.setSelectAllAcrossPages(
+    tableSelectionContext.setSelectAllAcrossPages?.(
       !tableSelectionContext?.selectAllAcrossPages,
     );
   };
