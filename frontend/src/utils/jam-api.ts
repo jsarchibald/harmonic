@@ -79,11 +79,12 @@ export async function getCollectionsMetadata(): Promise<ICollection[]> {
 export async function addCompaniesToCollection(
   collecton_id: string,
   company_ids: number[],
+  source_collection_id: string | null,
 ): Promise<IBulkOperationEnqueueResponse> {
   try {
     const response = await axios.post(
       `${BASE_URL}/collections/${collecton_id}/companies`,
-      { company_ids: company_ids },
+      { company_ids: company_ids, source_collection_id: source_collection_id },
     );
     return response.data;
   } catch (error) {

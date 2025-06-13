@@ -6,6 +6,7 @@ export interface ITableSelectionContext {
   total: number;
   pageSize: number;
   collections: ICollection[];
+  selectedCollectionId: string
 
   snackbarOpen: boolean;
   setSnackbarOpen: Dispatch<SetStateAction<boolean>>;
