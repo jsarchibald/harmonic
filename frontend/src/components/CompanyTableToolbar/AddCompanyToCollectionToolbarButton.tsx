@@ -81,7 +81,7 @@ const AddCompanyToCollectionToolbarButton = ({
         if (response.companies_queued_count > 10)
           message += " This might take a few minutes.";
 
-        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, message: message, open: true, progress: 0, showProgress: true});
+        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, message: message, open: true, progress: 0, showProgress: true, autoHideDuration: null});
 
         monitorBulkAdd(
           response.task_id,
@@ -90,7 +90,7 @@ const AddCompanyToCollectionToolbarButton = ({
         );
       })
       .catch((error) => {
-        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, open: true, message: error.response.data.detail});;
+        companyTableContext.setSnackbarState?.({...companyTableContext.snackbarState, open: true, message: error.response.data.detail, autoHideDuration: 5000});;
       });
   };
 

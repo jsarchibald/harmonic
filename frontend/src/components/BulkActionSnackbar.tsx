@@ -53,7 +53,7 @@ export default function BulkActionSnackbar() {
       open={companyTableContext.snackbarState.open}
       onClose={handleClose}
       message={message}
-      // autoHideDuration={companyTableContext.snackbarState.autoHideDuration}
+      autoHideDuration={companyTableContext.snackbarState.autoHideDuration}
       action={action}
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
     ></Snackbar>
