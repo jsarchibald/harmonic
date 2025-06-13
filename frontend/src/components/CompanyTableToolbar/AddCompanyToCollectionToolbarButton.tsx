@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import { TableSelectionContext } from "../../utils/contexts";
 
-const CompanyToCollectionToolbarButton = ({
+const AddCompanyToCollectionToolbarButton = ({
   selectionModel,
   pageSize,
   total,
@@ -101,4 +101,4 @@ const CompanyToCollectionToolbarButton = ({
   );
 };
 
-export default CompanyToCollectionToolbarButton;
+export default AddCompanyToCollectionToolbarButton;

@@ -15,6 +15,7 @@ const CompanyTable = (props: {
   const [pageSize, setPageSize] = useState(25);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [selectAllAcrossPages, setSelectAllAcrossPages] = useState(false);
 
   useEffect(() => {
     getCollectionsById(props.selectedCollectionId, offset, pageSize).then(
@@ -38,7 +39,8 @@ const CompanyTable = (props: {
       <TableSelectionContext.Provider
         value={{
            snackbarOpen, setSnackbarOpen, snackbarMessage,
-           setSnackbarMessage, total, pageSize, selectionModel
+           setSnackbarMessage, total, pageSize, selectionModel,
+           selectAllAcrossPages, setSelectAllAcrossPages,
         }}
       >
         <div style={{ height: 600, width: "100%" }}>

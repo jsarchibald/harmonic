@@ -14,8 +14,9 @@ import {
   Stack,
 } from "@mui/material";
 import { NumberFormat } from "../../utils/numbers";
-import CompanyToCollectionToolbarButton from "./CompanyToCollectionToolbarButton";
+import AddCompanyToCollectionToolbarButton from "./AddCompanyToCollectionToolbarButton";
 import { TableSelectionContext } from "../../utils/contexts";
+import SelectAllAcrossPagesAlert from "./SelectAllAcrossPagesAlert";
 
 const CompanyTableToolbar = ({
   collectionsList,
@@ -23,18 +24,6 @@ const CompanyTableToolbar = ({
   collectionsList: ICollection[];
 }) => {
   const tableSelectionContext = useContext(TableSelectionContext);
-
-  const selectAllAcrossPagesAlert = (
-    <Box>
-      <Alert severity="info">
-        All {tableSelectionContext?.selectionModel.length} companies on this page are selected.{" "}
-        <Link component="button" sx={{ fontWeight: "bold" }}>
-          Select all {NumberFormat.format(tableSelectionContext?.total)} from all pages.
-        </Link>
-      </Alert>
-      <Divider orientation="horizontal" flexItem />
-    </Box>
-  );
 
   return (
     <GridToolbarContainer>
@@ -44,16 +33,16 @@ const CompanyTableToolbar = ({
         direction={"column"}
         sx={{ width: "100%" }}
       >
-
-        <CompanyToCollectionToolbarButton
+        <AddCompanyToCollectionToolbarButton
           selectionModel={tableSelectionContext?.selectionModel}
           pageSize={tableSelectionContext?.pageSize}
           total={tableSelectionContext?.total}
           collectionsList={collectionsList}
         />
-        {tableSelectionContext?.selectionModel.length == tableSelectionContext?.pageSize &&
-        tableSelectionContext?.selectionModel.length < tableSelectionContext?.total &&
-        selectAllAcrossPagesAlert}
+        {
+        ((tableSelectionContext?.selectionModel.length == tableSelectionContext?.pageSize )|| tableSelectionContext?.selectAllAcrossPages)
+        && <SelectAllAcrossPagesAlert />
+        }
       </Stack>
     </GridToolbarContainer>
   );
