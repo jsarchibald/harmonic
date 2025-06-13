@@ -32,7 +32,7 @@ const CompanyTable = (props: {
 
         // Clear selection when new data load (e.g. next page or different collection)
         setSelectAllAcrossPages(false);
-        setSelectionModel([])
+        setSelectionModel([]);
       },
     );
   }, [props.selectedCollectionId, offset, pageSize]);
