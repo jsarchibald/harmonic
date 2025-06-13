@@ -1,9 +1,7 @@
-import Button from "@mui/material/Button";
 import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import { SnackbarContext } from "../utils/contexts";
 import { useContext } from "react";
-import { Icon } from "@mui/material";
 import { Close } from "@mui/icons-material";
 
 export default function BulkActionSnackbar() {
@@ -24,9 +22,9 @@ export default function BulkActionSnackbar() {
 
   const action = (
     <>
-      <Button color="secondary" size="small" onClick={handleClose}>
+      {/* <Button color="secondary" size="small" onClick={handleClose}>
         Monitor
-      </Button>
+      </Button> */}
       <IconButton
         size="small"
         aria-label="close"
