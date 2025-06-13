@@ -120,6 +120,8 @@ def add_company_associations_to_collection(
             detail="You must choose at least one company to add to the collection.",
         )
     else:
+        # Note that we convert company_ids back to a list since that is what is
+        # expected by the Celery task, and since the ordering of elements matters therein
         task = create_bulk_collection_insertion(
             collection_id=collection_id, company_ids=list(company_ids)
         )
