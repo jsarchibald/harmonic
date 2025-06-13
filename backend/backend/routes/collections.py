@@ -104,9 +104,16 @@ def add_company_associations_to_collection(
 
     # TODO: should there be different behavior for small changes? (probably yes)
     if company_associations.source_collection_id:
-        res = db.query(database.CompanyCollectionAssociation.company_id).filter(database.CompanyCollectionAssociation.collection_id == company_associations.source_collection_id).all()
+        res = (
+            db.query(database.CompanyCollectionAssociation.company_id)
+            .filter(
+                database.CompanyCollectionAssociation.collection_id
+                == company_associations.source_collection_id
+            )
+            .all()
+        )
         company_ids = company_ids.union([company_id[0] for company_id in res])
-    
+
     if len(company_ids) < 1:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
