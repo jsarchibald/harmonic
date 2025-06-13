@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { getCollectionsById, ICollection, ICompany } from "../utils/jam-api";
 import CompanyTableToolbar from "./CompanyTableToolbar/CompanyTableToolbar";
 import BulkActionSnackbar from "./BulkActionSnackbar";
-import { SnackbarContext } from "../utils/contexts";
+import { TableSelectionContext, tableSelectionContext } from "../utils/contexts";
 
 const CompanyTable = (props: {
   selectedCollectionId: string;
@@ -35,12 +35,10 @@ const CompanyTable = (props: {
 
   return (
     total != undefined && (
-      <SnackbarContext.Provider
+      <TableSelectionContext.Provider
         value={{
-          open: snackbarOpen,
-          setOpen: setSnackbarOpen,
-          message: snackbarMessage,
-          setMessage: setSnackbarMessage,
+           snackbarOpen, setSnackbarOpen, snackbarMessage,
+           setSnackbarMessage, total, pageSize, selectionModel
         }}
       >
         <div style={{ height: 600, width: "100%" }}>
@@ -72,9 +70,6 @@ const CompanyTable = (props: {
             slots={{
               toolbar: () => (
                 <CompanyTableToolbar
-                  selectedIds={selectionModel}
-                  pageSize={pageSize}
-                  total={total}
                   collectionsList={
                     props.allCollections != undefined
                       ? props.allCollections
@@ -86,7 +81,7 @@ const CompanyTable = (props: {
           />
           <BulkActionSnackbar />
         </div>
-      </SnackbarContext.Provider>
+      </TableSelectionContext.Provider>
     )
   );
 };

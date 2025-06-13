@@ -1,11 +1,11 @@
 import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
-import { SnackbarContext } from "../utils/contexts";
+import { TableSelectionContext } from "../utils/contexts";
 import { useContext } from "react";
 import { Close } from "@mui/icons-material";
 
 export default function BulkActionSnackbar() {
-  const snackbarContext = useContext(SnackbarContext);
+  const snackbarContext = useContext(TableSelectionContext);
 
   const handleClose = (
     event: React.SyntheticEvent | Event,
@@ -15,8 +15,8 @@ export default function BulkActionSnackbar() {
       return;
     }
 
-    if (snackbarContext?.setOpen !== undefined) {
-      snackbarContext?.setOpen(false);
+    if (snackbarContext?.setSnackbarOpen !== undefined) {
+      snackbarContext?.setSnackbarOpen(false);
     }
   };
 
@@ -38,10 +38,10 @@ export default function BulkActionSnackbar() {
 
   return (
     <Snackbar
-      open={snackbarContext?.open}
+      open={snackbarContext?.snackbarOpen}
       autoHideDuration={5000}
       onClose={handleClose}
-      message={snackbarContext?.message}
+      message={snackbarContext?.snackbarMessage}
       action={action}
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
     />

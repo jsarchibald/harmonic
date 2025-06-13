@@ -11,22 +11,22 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-import { SnackbarContext } from "../../utils/contexts";
+import { TableSelectionContext } from "../../utils/contexts";
 
 const CompanyToCollectionToolbarButton = ({
-  selectedIds,
+  selectionModel,
   pageSize,
   total,
   collectionsList,
 }: {
-  selectedIds: readonly GridRowId[];
+  selectionModel: readonly GridRowId[];
   pageSize: number;
   total: number;
   collectionsList: ICollection[];
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const snackbarContext = useContext(SnackbarContext);
+  const tableSelectionContext = useContext(TableSelectionContext);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -41,18 +41,18 @@ const CompanyToCollectionToolbarButton = ({
     addCompaniesToCollection(collection.id, selectedRows.map(Number))
       .then((response) => {
         const companies_queued = response.companies_queued;
-        snackbarContext?.setOpen(true);
+        tableSelectionContext?.setSnackbarOpen(true);
         let message = `Adding ${companies_queued} compan${companies_queued == 1 ? "y" : "ies"} to ${collection.collection_name}.`;
         if (response.companies_queued > 10)
           message += " This might take a few minutes.";
-        snackbarContext?.setMessage(message);
+        tableSelectionContext?.setSnackbarMessage(message);
 
         let repeat = setInterval(() => {
           checkBulkCompanyAdd(response.task_id).then((response) => {
             if (response.status == "SUCCESS") {
-              snackbarContext?.setOpen(true);
+              tableSelectionContext?.setSnackbarOpen(true);
               let message = `Finished adding ${companies_queued} compan${companies_queued == 1 ? "y" : "ies"} to ${collection.collection_name}.`;
-              snackbarContext?.setMessage(message);
+              tableSelectionContext?.setSnackbarMessage(message);
 
               clearInterval(repeat);
             }
@@ -61,16 +61,16 @@ const CompanyToCollectionToolbarButton = ({
       })
       .catch((error) => {
         console.log(error);
-        snackbarContext?.setOpen(true);
-        snackbarContext?.setMessage(error.response.data.detail);
+        tableSelectionContext?.setSnackbarOpen(true);
+        tableSelectionContext?.setSnackbarMessage(error.response.data.detail);
       });
   };
 
-  console.log(pageSize, total, selectedIds.length);
+  console.log(pageSize, total, selectionModel.length);
 
   return (
     <Box alignItems={"flex-start"} textAlign={"left"}>
-        <Button onClick={handleClick} disabled={selectedIds.length < 1}>
+        <Button onClick={handleClick} disabled={selectionModel.length < 1}>
           Add to collection
         </Button>
         <Menu
@@ -88,7 +88,7 @@ const CompanyToCollectionToolbarButton = ({
             <MenuItem
               key={`bulk_add_collection_menu_${collection.id}`}
               onClick={() => {
-                triggerBulkAdd(collection, selectedIds);
+                triggerBulkAdd(collection, selectionModel);
               }}
             >
               {collection.collection_name}
